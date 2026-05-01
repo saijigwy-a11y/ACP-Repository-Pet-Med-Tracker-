@@ -57,14 +57,16 @@ def doses_given_today(pet: str, med: str, intakes: list) -> int:
 
 def is_due_today(schedule: dict) -> bool:
     """
-    For Once/Twice a day: always due.
-    For Every other day / Weekly: check if today is in the saved days list.
+    For Once/Twice a day: check if today is in saved days (if days list is present).
+    For Every other day: check if today is in the saved days list.
     """
     freq = schedule.get("frequency", "Once a day")
-    if freq in ("Once a day", "Twice a day"):
-        return True
     days = schedule.get("days", [])
-    return today_weekday() in days
+    # If days are specified, always check against them regardless of frequency
+    if days:
+        return today_weekday() in days
+    # No days specified = every day
+    return True
 
 def schedule_status(schedule: dict, intakes: list) -> tuple:
     if not is_due_today(schedule):
@@ -95,15 +97,11 @@ class PetMedApp:
         s = ttk.Style()
         s.theme_use("clam")
         s.configure("Pink.Treeview",
-                    background=WHITE, foreground=TEXT,
-                    fieldbackground=WHITE, rowheight=38,
+                    background=WHITE, foreground=TEXT, fieldbackground=WHITE, rowheight=38,
                     font=("Montserrat Regular", 10), borderwidth=0)
         s.configure("Pink.Treeview.Heading",
-                    background=BG, foreground=TEXT2,
-                    font=("Montserrat Bold", 9), borderwidth=0, relief="flat")
-        s.map("Pink.Treeview",
-              background=[("selected", "#fce7f3")],
-              foreground=[("selected", COLOR1)])
+                    background=BG, foreground=TEXT2, font=("Montserrat Bold", 9), borderwidth=0, relief="flat")
+        s.map("Pink.Treeview", background=[("selected", "#fce7f3")], foreground=[("selected", COLOR1)])
 
     # ── Layout skeleton ───────────────────────────────────────────────────────
 
@@ -112,11 +110,10 @@ class PetMedApp:
         navbar.pack(side="top", fill="x")
         navbar.pack_propagate(False)
 
-        tk.Label(navbar, text="Paws and Pills", font=("Rubik Spray Paint Regular", 16),
-                 bg=NAVIGATION_COLOR, fg=COLOR1).pack(side="left", padx=24)
+        tk.Label(navbar, text="Paws and Pills", font=("Rubik Spray Paint Regular", 16), bg=NAVIGATION_COLOR, fg=COLOR1).pack(side="left", padx=24)
 
-        self._nav_btns = []
-        nav_items = [
+        self._nav_btns = [] # to keep references for updating styles on click
+        nav_items = [ 
             ("Dashboard",     self.show_dashboard),
             ("Add Pet",       self.show_add_pet),
             ("Schedules",     self.show_schedules),
@@ -126,11 +123,8 @@ class PetMedApp:
         links = tk.Frame(navbar, bg=NAVIGATION_COLOR)
         links.pack(side="left", padx=16)
         for text, cmd in nav_items:
-            btn = tk.Button(links, text=text, font=NAV_FONT,
-                            bg=NAVIGATION_COLOR, fg=TEXT2, bd=0, padx=14, pady=8,
-                            cursor="hand2", activebackground="#fff0f7",
-                            activeforeground=COLOR1, relief="flat",
-                            command=lambda c=cmd, t=text: self._nav(c, t))
+            btn = tk.Button(links, text=text, font=NAV_FONT, bg=NAVIGATION_COLOR, fg=TEXT2, bd=0, padx=14, pady=8, cursor="hand2", activebackground="#fff0f7",
+                            activeforeground=COLOR1, relief="flat", command=lambda c=cmd, t=text: self._nav(c, t))
             btn.pack(side="left", padx=2)
             self._nav_btns.append((btn, text))
 
@@ -191,10 +185,6 @@ class PetMedApp:
                   command=command).pack(fill="x")
 
     def _day_picker(self, parent, preselect=None):
-        """
-        Renders a row of day checkboxes. Returns a dict of {day: BooleanVar}.
-        preselect: list of day names to check by default.
-        """
         frame = tk.Frame(parent, bg=CARD)
         frame.pack(fill="x", pady=(6, 2))
         vars_ = {}
@@ -237,9 +227,9 @@ class PetMedApp:
         row = tk.Frame(cont, bg=BG, padx=10, pady=0)
         row.pack(fill="x", padx=10, pady=(0, 20))
         for icon, label, val, clr in [
-            ("𓇼 ⋆.˚ 𓆉 𓆝 𓆡⋆.˚ 𓇼", "Pets",       f"{len(data['pets'])}",      COLOR1),
+            ("૮꒰ ˶• ༝ •˶꒱ა", "Pets",       f"{len(data['pets'])}",      COLOR1),
             ("────୨ৎ────",             "Schedules",  f"{len(data['schedules'])}", COLOR2),
-            ("𓇼 ⋆.˚ 𓆉 𓆝 𓆡⋆.˚ 𓇼", "Total Logs", f"{len(data['intakes'])}",   "#f59e0b"),
+            ("𓇼 𓆉 𓆝 ⋆.˚ 𓇼", "Total Logs", f"{len(data['intakes'])}",   "#f59e0b"),
         ]:
             card = self._card(row, padx=18, pady=16)
             card.pack(side="left", fill="both", expand=True, padx=(0, 12))
@@ -344,37 +334,45 @@ class PetMedApp:
         freq_cb.pack(fill="x", ipady=6)
         freq_cb.current(0)
 
-        # ── Day picker (shown only for Every other day / Weekly) ──
+        # ── Day picker (shown for ALL frequencies) ──
         day_picker_label = tk.Label(form_card, text="Days to give medication",
                                     bg=CARD, fg=TEXT2, font=("Montserrat Bold", 9))
+        day_picker_hint  = tk.Label(form_card, bg=CARD, fg=TEXT2,
+                                    font=("Montserrat Regular", 8),
+                                    text="Leave all unchecked to give every day.")
         day_picker_frame = tk.Frame(form_card, bg=CARD)
         day_vars = {}
 
         def refresh_day_picker(event=None):
             freq = freq_cb.get()
             nonlocal day_vars
+
             # Clear old checkboxes
             for w in day_picker_frame.winfo_children():
                 w.destroy()
 
-            if freq in ("Every other day",):
-                day_picker_label.pack(anchor="w", pady=(10, 2))
-                day_picker_frame.pack(fill="x", pady=(0, 4))
+            # Always show the day picker
+            day_picker_label.pack(anchor="w", pady=(10, 2))
+            day_picker_hint.pack(anchor="w", pady=(0, 2))
+            day_picker_frame.pack(fill="x", pady=(0, 4))
+
+            # Default selections per frequency
+            if freq == "Every other day":
                 defaults = ["Monday", "Wednesday", "Friday"]
-                day_vars = {}
-                for day in DAYS_OF_WEEK:
-                    var = tk.BooleanVar(value=(day in defaults))
-                    cb = tk.Checkbutton(day_picker_frame, text=day[:3], variable=var,
-                                        bg=CARD, fg=TEXT, selectcolor="#fce7f3",
-                                        activebackground=CARD,
-                                        font=("Montserrat Regular", 9),
-                                        cursor="hand2")
-                    cb.pack(side="left", padx=4)
-                    day_vars[day] = var
             else:
-                day_picker_label.pack_forget()
-                day_picker_frame.pack_forget()
-                day_vars = {}
+                # Once a day / Twice a day: all days checked by default
+                defaults = DAYS_OF_WEEK[:]
+
+            day_vars = {}
+            for day in DAYS_OF_WEEK:
+                var = tk.BooleanVar(value=(day in defaults))
+                cb = tk.Checkbutton(day_picker_frame, text=day[:3], variable=var,
+                                    bg=CARD, fg=TEXT, selectcolor="#fce7f3",
+                                    activebackground=CARD,
+                                    font=("Montserrat Regular", 9),
+                                    cursor="hand2")
+                cb.pack(side="left", padx=4)
+                day_vars[day] = var
 
         freq_cb.bind("<<ComboboxSelected>>", refresh_day_picker)
         refresh_day_picker()  # init state
@@ -390,21 +388,20 @@ class PetMedApp:
                 messagebox.showwarning("Duplicate", f"A schedule for {pet} / {med} already exists.")
                 return
 
-            # Collect selected days for Every other day / Weekly
-            if freq == "Every other day":
-                selected_days = [d for d, v in day_vars.items() if v.get()]
-                if not selected_days:
-                    messagebox.showwarning("No Days Selected",
-                                           "Please select at least one day for this frequency.")
-                    return
-            else:
-                selected_days = []  # Once/Twice a day = every day, no list needed
+            # Collect selected days for all frequencies
+            selected_days = [d for d, v in day_vars.items() if v.get()]
+            # If user unchecked everything, treat as "every day" (empty list)
+            # If "Every other day" and nothing selected, warn
+            if freq == "Every other day" and not selected_days:
+                messagebox.showwarning("No Days Selected",
+                                       "Please select at least one day for this frequency.")
+                return
 
             data["schedules"].append({
                 "pet":       pet,
                 "med":       med,
                 "frequency": freq,
-                "days":      selected_days
+                "days":      selected_days   # empty = every day for Once/Twice a day
             })
             save_data(data)
             self.show_schedules()
