@@ -77,14 +77,14 @@ class PetMedApp:
     def _setup_styles(self):
         s = ttk.Style()
         s.theme_use("clam")
-        s.configure("App.Treeview",
+        s.configure("Pink.Treeview",
                     background=WHITE, foreground=TEXT,
                     fieldbackground=WHITE, rowheight=38,
                     font=("Segoe UI", 10), borderwidth=0)
-        s.configure("App.Treeview.Heading",
+        s.configure("Pink.Treeview.Heading",
                     background=BG, foreground=TEXT2,
                     font=("Segoe UI Bold", 9), borderwidth=0, relief="flat")
-        s.map("App.Treeview",
+        s.map("Pink.Treeview",
               background=[("selected", "#fce7f3")],
               foreground=[("selected", COLOR1)])
 
@@ -222,7 +222,7 @@ class PetMedApp:
         else:
             cols = ("pet", "med", "frequency", "today")
             tree = ttk.Treeview(sched_card, columns=cols, show="headings",
-                                style="App.Treeview", height=min(len(data["schedules"]), 6))
+                                style="Pink.Treeview", height=min(len(data["schedules"]), 6))
             for col, head, w in zip(cols, ("Pet", "Medication", "Frequency", "Today's Status"), [130, 160, 130, 200]):
                 tree.heading(col, text=head)
                 tree.column(col, width=w, anchor="center")
@@ -237,7 +237,7 @@ class PetMedApp:
         hist_card.pack(fill="both", expand=True)
         cols = ("date", "pet", "med", "dose", "status")
         tree = ttk.Treeview(hist_card, columns=cols, show="headings",
-                            style="App.Treeview", height=8)
+                            style="Pink.Treeview", height=8)
         for col, w in zip(cols, [170, 110, 130, 100, 110]):
             tree.heading(col, text=col.capitalize())
             tree.column(col, width=w, anchor="center")
@@ -338,7 +338,7 @@ class PetMedApp:
 
         cols = ("pet", "med", "frequency", "today_status")
         tree = ttk.Treeview(table_card, columns=cols, show="headings",
-                            style="App.Treeview", height=max(len(data["schedules"]), 1))
+                            style="Pink.Treeview", height=max(len(data["schedules"]), 1))
         for col, head, w in zip(cols,
                                 ("Pet", "Medication", "Frequency", "Today's Status"),
                                 [140, 160, 130, 200]):
@@ -487,7 +487,7 @@ class PetMedApp:
                          if pet_filter == "All" or i.get("pet") == pet_filter]
 
             tree = ttk.Treeview(card, columns=cols, show="headings",
-                                style="App.Treeview", height=14)
+                                style="Pink.Treeview", height=14)
             for col, head in zip(cols, heads):
                 tree.heading(col, text=head)
                 tree.column(col, anchor="center")
