@@ -9,13 +9,16 @@ BG         = "#fdf2f8"
 NAVIGATION_COLOR = "#ffffff"
 COLOR1     = "#e879a0"
 COLOR2     = "#c084fc"
-TEXT       = "#1e1b4b"
-TEXT2      = "#9ca3af"
+TEXT       = "#000000"
+TEXT2      = "#646970"
+TEXT3     = "#b83764"
+MUTED_PINK = "#ebbbd6"
 WHITE      = "#ffffff"
 BORDER     = "#f3e8ff"
 DANGER     = "#f43f5e"
 SUCCESS    = "#34d399"
 CARD       = "#ffffff"
+NAV_FONT     = ("Montserrat SemiBold", 11)
 
 DATA_FILE = "pets_data.json"
 
@@ -66,9 +69,9 @@ class PetMedApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Paws and Pills")
-        self.root.geometry("1100x700")
+        self.root.geometry("1100x900")
         self.root.configure(bg=BG)
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
         self._setup_styles()
         self._build_layout()
         self.show_dashboard()
@@ -81,10 +84,10 @@ class PetMedApp:
         s.configure("Pink.Treeview",
                     background=WHITE, foreground=TEXT,
                     fieldbackground=WHITE, rowheight=38,
-                    font=("Segoe UI", 10), borderwidth=0)
+                    font=("Montserrat Regular", 10), borderwidth=0)
         s.configure("Pink.Treeview.Heading",
                     background=BG, foreground=TEXT2,
-                    font=("Segoe UI Bold", 9), borderwidth=0, relief="flat")
+                    font=("Montserrat Bold", 9), borderwidth=0, relief="flat")
         s.map("Pink.Treeview",
               background=[("selected", "#fce7f3")],
               foreground=[("selected", COLOR1)])
@@ -96,8 +99,8 @@ class PetMedApp:
         navbar.pack(side="top", fill="x")
         navbar.pack_propagate(False)
 
-        tk.Label(navbar, text="Paws and Pills", font=("Indie FLower Bold", 16),
-                 bg=NAVIGATION_COLOR, fg=TEXT).pack(side="left", padx=24)
+        tk.Label(navbar, text="Paws and Pills", font=("Rubik Spray Paint Regular", 16),
+                 bg=NAVIGATION_COLOR, fg=COLOR1).pack(side="left", padx=24)
 
         self._nav_btns = []
         nav_items = [
@@ -110,7 +113,7 @@ class PetMedApp:
         links = tk.Frame(navbar, bg=NAVIGATION_COLOR)
         links.pack(side="left", padx=16)
         for text, cmd in nav_items:
-            btn = tk.Button(links, text=text, font=("Segoe UI Semibold", 10),
+            btn = tk.Button(links, text=text, font=("Montserrat SemiBold", 11),
                             bg=NAVIGATION_COLOR, fg=TEXT2, bd=0, padx=14, pady=8,
                             cursor="hand2", activebackground="#fff0f7",
                             activeforeground=COLOR1, relief="flat",
@@ -127,29 +130,29 @@ class PetMedApp:
             active = t == text
             btn.configure(fg=COLOR1 if active else TEXT2,
                           bg="#fff0f7" if active else NAVIGATION_COLOR,
-                          font=("Segoe UI Bold", 10) if active else ("Segoe UI Semibold", 10))
+                          font=NAV_FONT if active else NAV_FONT)
         command()
 
     def _clear(self): # Destroy all widgets in the main content area so we can render a new screen
         for w in self.main.winfo_children():
             w.destroy()
-
+ 
     # ── Reusable widgets ──────────────────────────────────────────────────────
 
     def _card(self, parent, padx=20, pady=20): 
-        return tk.Frame(parent, bg=CARD, highlightthickness=1,
+        return tk.Frame(parent, bg=CARD, highlightthickness=1, highlightbackground=BORDER,
                         padx=padx, pady=pady)
 
     def _section(self, parent, text):
-        tk.Label(parent, text=text, font=("Segoe UI Bold", 11),
+        tk.Label(parent, text=text, font=("Montserrat Bold", 12),
                  bg=BG, fg=TEXT).pack(anchor="w", pady=(14, 4))
 
     def _field_label(self, parent, text):
         tk.Label(parent, text=text, bg=CARD, fg=TEXT2,
-                 font=("Segoe UI Bold", 9)).pack(anchor="w", pady=(10, 2))
+                 font=("Montserrat Bold", 9)).pack(anchor="w", pady=(10, 2))
 
     def _entry(self, parent):
-        e = tk.Entry(parent, font=("Segoe UI", 11), bd=0,
+        e = tk.Entry(parent, font=("Montserrat Regular", 11), bd=0,
                      highlightthickness=1, highlightbackground="#f3e8ff",
                      bg="#fdf4ff", fg=TEXT)
         e.pack(fill="x", ipady=9)
@@ -171,7 +174,7 @@ class PetMedApp:
     def _primary_btn(self, parent, text, command):
         tk.Frame(parent, bg=CARD, height=14).pack()
         tk.Button(parent, text=text, bg=COLOR1, fg=WHITE,
-                  font=("Segoe UI Bold", 11), bd=0, pady=12,
+                  font=("Montserrat Bold", 11), bd=0, pady=12,
                   cursor="hand2", activebackground="#be185d",
                   command=command).pack(fill="x")
 
@@ -189,14 +192,12 @@ class PetMedApp:
 
         inner = tk.Frame(greeting, bg="#fce7f3")
         inner.pack(anchor="center")
-        tk.Label(inner, text="    /)/)\n( ˶•༝•)\n୭( づ✿", font=("Segoe UI", 18),
-                 bg="#fce7f3").pack(side="left", padx=(0, 12))
+        tk.Label(inner, text="    /)/)\n( ˶•༝•)\n୭( づ✿", font=("Montserrat Regular", 18), fg=TEXT3,
+                 bg="#fce7f3").pack(side="left", padx=(0, 12)) 
         text_frame = tk.Frame(inner, bg="#fce7f3")
         text_frame.pack(side="left")
-        tk.Label(text_frame, text="Hello! 👋", font=("Segoe UI", 12),
-                 bg="#fce7f3", fg=COLOR1).pack(anchor="w")
-        tk.Label(text_frame, text="Welcome to Paws and Pills",
-                 font=("Segoe UI Bold", 20), bg="#fce7f3", fg=TEXT).pack(anchor="w", pady=1)
+        tk.Label(text_frame, text="H e l l o ! \n Welcome to Paws & Pills", font=("Rubik Spray Paint Regular", 15),
+                 bg="#fce7f3", fg=TEXT3).pack(anchor="center", pady=0)
 
         # Stat cards
         row = tk.Frame(cont, bg=BG, padx=10, pady=0)
@@ -210,23 +211,23 @@ class PetMedApp:
             card.pack(side="left", fill="both", expand=True, padx=(0, 12))
             top = tk.Frame(card, bg=CARD)
             top.pack(fill="both", expand=True)
-            tk.Label(top, text=icon, font=("Segoe UI Bold", 15), bg=CARD).pack(side="top")
-            tk.Label(top, text=label, font=("Segoe UI Bold", 20), bg=CARD).pack(side="left")
-            tk.Label(top, text=val,  font=("Segoe UI Bold", 22), bg=CARD, fg=clr).pack(side="right")
+            tk.Label(top, text=icon, font=("Montserrat Bold", 15), bg=CARD, fg=MUTED_PINK).pack(side="top")
+            tk.Label(top, text=label, font=("Montserrat Bold", 20), bg=CARD).pack(side="left")
+            tk.Label(top, text=val,  font=("Montserrat Bold", 22), bg=CARD, fg=clr).pack(side="right")
 
         # Today's schedule status
-        self._section(cont, "Today's Medication Status")
+        self._section(cont, "Medication Status")
         sched_card = self._card(cont, padx=16, pady=16)
         sched_card.pack(fill="x", pady=(0, 12))
 
         if not data["schedules"]:
-            tk.Label(sched_card, text="No schedules yet. Add one via the Schedules tab.",
-                     font=("Segoe UI", 10), bg=CARD, fg=TEXT2).pack(anchor="w")
+            tk.Label(sched_card, text="No schedules yet.",
+                     font=("Montserrat Regular", 10), bg=CARD, fg=TEXT2).pack(anchor="w")
         else:
             cols = ("pet", "med", "frequency", "today")
             tree = ttk.Treeview(sched_card, columns=cols, show="headings",
                                 style="Pink.Treeview", height=min(len(data["schedules"]), 6))
-            for col, head, w in zip(cols, ("Pet", "Medication", "Frequency", "Today's Status"), [130, 160, 130, 200]):
+            for col, head, w in zip(cols, ("Pet", "Medication", "Frequency", "Status"), [130, 160, 130, 200]):
                 tree.heading(col, text=head)
                 tree.column(col, width=w, anchor="center")
             tree.pack(fill="x")
@@ -257,7 +258,7 @@ class PetMedApp:
         cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
         cont.pack(fill="both", expand=True)
 
-        tk.Label(cont, text="Add New Pet", font=("Segoe UI Bold", 20),
+        tk.Label(cont, text="Add New Pet", font=("Montserrat Bold", 20),
                  bg=BG, fg=TEXT).pack(anchor="w", pady=(0, 16))
 
         card = self._card(cont, padx=28, pady=28)
@@ -291,20 +292,20 @@ class PetMedApp:
         data = load_data()
         _, cont = self._scrollable()
 
-        tk.Label(cont, text="Medication Schedules", font=("Segoe UI Bold", 20),
+        tk.Label(cont, text="Medication Schedules", font=("Montserrat Bold", 20),
                  bg=BG, fg=TEXT).pack(anchor="w", pady=(0, 4))
         tk.Label(cont, text="Set a frequency per pet+medication pair. The dashboard will track daily progress.",
-                 font=("Segoe UI", 10), bg=BG, fg=TEXT2).pack(anchor="w", pady=(0, 16))
+                 font=("Montserrat Regular", 10), bg=BG, fg=TEXT2).pack(anchor="w", pady=(0, 16))
 
         # ── Add schedule form ──
         form_card = self._card(cont, padx=28, pady=24)
         form_card.pack(fill="x", pady=(0, 20))
-        tk.Label(form_card, text="Add New Schedule", font=("Segoe UI Bold", 12),
+        tk.Label(form_card, text="Add New Schedule", font=("Montserrat Bold", 12),
                  bg=CARD, fg=TEXT).pack(anchor="w", pady=(0, 8))
 
         self._field_label(form_card, "Pet")
         pet_names = [p["name"] for p in data["pets"]] or ["No pets added"]
-        pet_cb = ttk.Combobox(form_card, values=pet_names, state="readonly", font=("Segoe UI", 11))
+        pet_cb = ttk.Combobox(form_card, values=pet_names, state="readonly", font=("Montserrat Regular", 11))
         pet_cb.pack(fill="x", ipady=6)
         if pet_names:
             pet_cb.current(0)
@@ -313,7 +314,7 @@ class PetMedApp:
         med_ent = self._entry(form_card)
 
         self._field_label(form_card, "Frequency")
-        freq_cb = ttk.Combobox(form_card, values=FREQUENCIES, state="readonly", font=("Segoe UI", 11))
+        freq_cb = ttk.Combobox(form_card, values=FREQUENCIES, state="readonly", font=("Montserrat Regular", 11))
         freq_cb.pack(fill="x", ipady=6)
         freq_cb.current(0)
 
@@ -370,7 +371,7 @@ class PetMedApp:
                 self.show_schedules()
 
         tk.Button(btn_row, text="🗑  Delete Selected",
-                  bg=DANGER, fg=WHITE, font=("Segoe UI Bold", 9),
+                  bg=DANGER, fg=WHITE, font=("Montserrat Bold", 9),
                   bd=0, padx=12, pady=6, cursor="hand2",
                   command=delete_schedule).pack()
 
@@ -382,7 +383,7 @@ class PetMedApp:
         cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
         cont.pack(fill="both", expand=True)
 
-        tk.Label(cont, text="Record Medication Intake", font=("Segoe UI Bold", 20),
+        tk.Label(cont, text="Record Medication Intake", font=("Montserrat Bold", 20),
                  bg=BG, fg=TEXT).pack(anchor="w", pady=(0, 16))
 
         card = self._card(cont, padx=28, pady=28)
@@ -390,7 +391,7 @@ class PetMedApp:
 
         self._field_label(card, "Select Pet")
         pet_names = [p["name"] for p in data["pets"]] or ["No pets added"]
-        pet_cb = ttk.Combobox(card, values=pet_names, state="readonly", font=("Segoe UI", 11))
+        pet_cb = ttk.Combobox(card, values=pet_names, state="readonly", font=("Montserrat Regular", 11))
         pet_cb.pack(fill="x", ipady=6)
         if pet_names:
             pet_cb.current(0)
@@ -418,10 +419,10 @@ class PetMedApp:
                 "med":      med,
                 "dose":     dose,
                 "given_by": user,
-                "status":   "Given ✅"
+                "status":   "Given"
             })
             save_data(data)
-            messagebox.showinfo("Success", "✅ Intake recorded!")
+            messagebox.showinfo("Success", "Intake recorded!")
             self.show_dashboard()
 
         self._primary_btn(card, "Record Intake", save_intake)
@@ -434,7 +435,7 @@ class PetMedApp:
         cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
         cont.pack(fill="both", expand=True)
 
-        tk.Label(cont, text="View Records", font=("Segoe UI Bold", 20),
+        tk.Label(cont, text="View Records", font=("Montserrat Bold", 20),
                  bg=BG, fg=TEXT).pack(anchor="w")
 
         tab_frame = tk.Frame(cont, bg=BG)
@@ -449,7 +450,7 @@ class PetMedApp:
             for c, b in tab_btns.items():
                 b.configure(bg=COLOR1 if c == cat else WHITE,
                             fg=WHITE  if c == cat else TEXT2,
-                            font=("Segoe UI Bold", 10) if c == cat else ("Segoe UI", 10))
+                            font=("Montserrat Bold", 10) if c == cat else ("Montserrat Regular", 10))
 
             for w in table_cont.winfo_children():
                 w.destroy()
@@ -462,10 +463,10 @@ class PetMedApp:
                 filter_frame = tk.Frame(card, bg=CARD)
                 filter_frame.pack(fill="x", pady=(0, 10))
                 tk.Label(filter_frame, text="Filter by pet:", bg=CARD,
-                         fg=TEXT2, font=("Segoe UI Bold", 9)).pack(side="left", padx=(0, 8))
+                         fg=TEXT2, font=("Montserrat Bold", 9)).pack(side="left", padx=(0, 8))
                 pet_names = ["All"] + [p["name"] for p in data["pets"]]
                 filter_cb = ttk.Combobox(filter_frame, values=pet_names,
-                                         state="readonly", font=("Segoe UI", 10), width=20)
+                                         state="readonly", font=("Montserrat Regular", 10), width=20)
                 filter_cb.pack(side="left")
                 filter_cb.set(pet_filter)
                 filter_cb.bind("<<ComboboxSelected>>",
@@ -516,12 +517,12 @@ class PetMedApp:
                         display_tab(c)
 
                 tk.Button(btn_row, text="🗑  Delete Selected",
-                          bg=DANGER, fg=WHITE, font=("Segoe UI Bold", 9),
+                          bg=DANGER, fg=WHITE, font=("Montserrat Bold", 9),
                           bd=0, padx=12, pady=6, cursor="hand2",
                           command=delete_item).pack()
 
         for label, key in [("Pets 🐾", "pets"), ("Schedules 📅", "schedules"), ("History 📋", "intakes")]:
-            b = tk.Button(tab_frame, text=label, font=("Segoe UI", 10),
+            b = tk.Button(tab_frame, text=label, font=("Montserrat Regular", 10),
                           bg=WHITE, fg=TEXT2, bd=0, padx=16, pady=8,
                           cursor="hand2", highlightthickness=1,
                           highlightbackground=BORDER,
