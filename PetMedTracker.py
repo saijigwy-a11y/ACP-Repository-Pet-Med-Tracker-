@@ -75,7 +75,7 @@ def schedule_status(schedule: dict, intakes: list) -> tuple:
     required = doses_required_today(freq)
     given    = doses_given_today(schedule["pet"], schedule["med"], intakes)
     if given >= required:
-        return f"Done ✅ ({given}/{required})", SUCCESS
+        return f"Done ({given}/{required})", SUCCESS
     return f"Pending ⏳ ({given}/{required})", "#f59e0b"
 
 # ── App ───────────────────────────────────────────────────────────────────────
