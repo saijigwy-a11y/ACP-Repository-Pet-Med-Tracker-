@@ -21,7 +21,7 @@ NAV_FONT   = ("Montserrat SemiBold", 11)
 
 DATA_FILE = "pets_data.json"
 
-FREQUENCIES = ["Once daily", "Twice daily", "Every other day", "Weekly", "As needed"]
+FREQUENCIES = ["Once a day", "Twice a day", "Every other day", "Weekly", "As needed"]
 
 # ── Data helpers ──────────────────────────────────────────────────────────────
 
@@ -40,7 +40,7 @@ def today_str():
     return datetime.now().strftime("%Y-%m-%d")
 
 def doses_required_today(frequency: str) -> int:
-    return {"Once daily": 1, "Twice daily": 2, "Every other day": 1,
+    return {"Once a day": 1, "Twice a day": 2, "Every other day": 1,
             "Weekly": 1, "As needed": 0}.get(frequency, 1)
 
 def doses_given_today(pet: str, med: str, intakes: list) -> int:
@@ -50,15 +50,15 @@ def doses_given_today(pet: str, med: str, intakes: list) -> int:
         and i.get("date", "").startswith(today_str())
     )
 
-def schedule_status(schedule: dict, intakes: list) -> tuple[str, str]:
-    freq = schedule.get("frequency", "Once daily")
+def schedule_status(schedule: dict, intakes: list) -> tuple:
+    freq = schedule.get("frequency", "Once a day")
     if freq == "As needed":
         return "As needed", TEXT2
     required = doses_required_today(freq)
     given = doses_given_today(schedule["pet"], schedule["med"], intakes)
     if given >= required:
-        return f"Done ✅ ({given}/{required})", SUCCESS
-    return f"Pending ⏳ ({given}/{required})", "#f59e0b"
+        return f"Done ({given}/{required})", SUCCESS
+    return f"Pending ({given}/{required})", "#f59e0b"
 
 # ── App ───────────────────────────────────────────────────────────────────────
 
@@ -251,7 +251,7 @@ class PetMedApp:
         name_ent = self._entry(card)
         self._field_label(card, "Species")
         species_ent = self._entry(card)
-        self._field_label(card, "Age (years)")
+        self._field_label(card, "Age (years/months)")
         age_ent = self._entry(card)
 
         def save():
@@ -392,11 +392,11 @@ class PetMedApp:
                 med_cb["values"] = meds
                 med_cb.current(0)
             else:
-                med_cb["values"] = ["No schedules for this pet"]
-                med_cb.set("No schedules for this pet")
+                med_cb["values"] = ["No medicine for this pet."]
+                med_cb.set("No medicine for this pet.")
 
         pet_cb.bind("<<ComboboxSelected>>", refresh_meds)
-        refresh_meds()  # populate on load
+        refresh_meds()
 
         self._field_label(card, "Given By")
         user_ent = self._entry(card)
@@ -405,7 +405,7 @@ class PetMedApp:
             pet  = pet_cb.get()
             med  = med_cb.get()
             user = user_ent.get().strip()
-            if pet == "No pets added" or not med or med == "No schedules for this pet":
+            if pet == "No pets added" or not med or med == "No medicine for this pet.":
                 messagebox.showwarning("Missing Fields", "Select a valid pet and medication.")
                 return
             data["intakes"].append({
@@ -413,7 +413,7 @@ class PetMedApp:
                 "pet":      pet,
                 "med":      med,
                 "given_by": user,
-                "status":   "Given ✅"
+                "status":   "Given"
             })
             save_data(data)
             messagebox.showinfo("Success", "Intake recorded!")
@@ -426,8 +426,7 @@ class PetMedApp:
     def show_view_records(self):
         self._clear()
         data = load_data()
-        cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
-        cont.pack(fill="both", expand=True)
+        _, cont = self._scrollable()
 
         tk.Label(cont, text="View Records", font=("Montserrat Bold", 20),
                  bg=BG, fg=TEXT).pack(anchor="w")
@@ -440,12 +439,12 @@ class PetMedApp:
 
         tab_btns = {}
 
-        def display_tab(cat, pet_filter="All"):
+        def display_tab(category, pet_filter="All"):
             for c, b in tab_btns.items():
                 b.configure(
-                    bg=COLOR1 if c == cat else WHITE,
-                    fg=WHITE   if c == cat else TEXT2,
-                    font=("Montserrat Bold", 10) if c == cat else ("Montserrat Regular", 10))
+                    bg=COLOR1 if c == category else WHITE,
+                    fg=WHITE   if c == category else TEXT2,
+                    font=("Montserrat Bold", 10) if c == category else ("Montserrat Regular", 10))
 
             for w in table_cont.winfo_children():
                 w.destroy()
@@ -454,7 +453,7 @@ class PetMedApp:
             card.pack(fill="both", expand=True)
 
             # Per-pet filter on history tab
-            if cat == "intakes":
+            if category == "intakes":
                 filter_frame = tk.Frame(card, bg=CARD)
                 filter_frame.pack(fill="x", pady=(0, 10))
                 tk.Label(filter_frame, text="Filter by pet:", bg=CARD,
@@ -468,11 +467,11 @@ class PetMedApp:
                                lambda e: display_tab("intakes", filter_cb.get()))
 
             # Columns per tab
-            if cat == "pets":
+            if category == "pets":
                 cols  = ("name", "species", "age")
                 heads = ("Pet Name", "Species", "Age")
                 rows  = data["pets"]
-            elif cat == "schedules":
+            elif category == "schedules":
                 cols  = ("pet", "med", "frequency", "status")
                 heads = ("Pet", "Medication", "Frequency", "Today's Status")
                 rows  = [{"pet": s["pet"], "med": s["med"],
@@ -485,21 +484,24 @@ class PetMedApp:
                 rows  = [i for i in data["intakes"]
                          if pet_filter == "All" or i.get("pet") == pet_filter]
 
+            # ── Dynamic height: size to data, min 1 row ──
+            row_count = max(len(rows), 1)
+
             tree = ttk.Treeview(card, columns=cols, show="headings",
-                                style="Pink.Treeview", height=14)
+                                style="Pink.Treeview", height=row_count)
             for col, head in zip(cols, heads):
                 tree.heading(col, text=head)
                 tree.column(col, anchor="center")
-            tree.pack(fill="both", expand=True)
+            tree.pack(fill="x", expand=False)
 
             for row in rows:
                 tree.insert("", "end", values=tuple(row.get(k, "") for k in cols))
 
-            # Delete button — all tabs
+            # Delete button
             btn_row = tk.Frame(card, bg=CARD)
             btn_row.pack(anchor="e", pady=(10, 0))
 
-            def delete_item(c=cat, pf=pet_filter):
+            def delete_item(c=category, pf=pet_filter):
                 sel = tree.selection()
                 if not sel:
                     return
@@ -513,7 +515,7 @@ class PetMedApp:
                     key     = "schedules"
                     match   = lambda x: x["pet"] == vals[0] and x["med"] == vals[1]
                     confirm = f"Delete schedule for '{vals[0]} / {vals[1]}'?"
-                else:  # intakes — match on date + pet + med
+                else:
                     key     = "intakes"
                     match   = lambda x: (x.get("date") == vals[0]
                                          and x.get("pet") == vals[1]

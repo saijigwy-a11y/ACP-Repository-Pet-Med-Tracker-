@@ -1,5 +1,44 @@
 {
-    "pets": [],
-    "schedules": [],
-    "intakes": []
+    "pets": [
+        {
+            "name": "Pengui",
+            "species": "Cat",
+            "age": "1 years old"
+        },
+        {
+            "name": "Bella",
+            "species": "Dog",
+            "age": "3 years old"
+        }
+    ],
+    "schedules": [
+        {
+            "pet": "Pengui",
+            "med": "Antibiotics",
+            "frequency": "Once a day"
+        },
+        {
+            "pet": "Pengui",
+            "med": "for sipon (name)",
+            "frequency": "Twice a day"
+        }
+    ],
+    "intakes": [
+        {
+            "date": "2026-05-01 06:20 PM",
+            "pet": "Pengui",
+            "med": "Antibiotics",
+            "given_by": "Gwy",
+            "time": "6:20 pm",
+            "status": "Given"
+        },
+        {
+            "date": "2026-05-01 06:24 PM",
+            "pet": "Pengui",
+            "med": "Antibiotics",
+            "given_by": "gwy",
+            "time": "8:00 am",
+            "status": "Given"
+        }
+    ]
 }
