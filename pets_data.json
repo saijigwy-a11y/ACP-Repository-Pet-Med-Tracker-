@@ -1,39 +1,5 @@
 {
-    "pets": [
-        {
-            "name": "Xy",
-            "species": "Dog",
-            "age": "19"
-        },
-        {
-            "name": "Pengui",
-            "species": "Cat",
-            "age": "1"
-        }
-    ],
-    "schedules": [
-        {
-            "pet": "Xy",
-            "med": "Antibiotics",
-            "frequency": "Twice daily"
-        }
-    ],
-    "intakes": [
-        {
-            "date": "2026-05-01 11:49 AM",
-            "pet": "Xy",
-            "med": "Anti baliw",
-            "dose": "1",
-            "given_by": "Gwy",
-            "status": "Given \u00e2\u0153\u2026"
-        },
-        {
-            "date": "2026-05-01 04:52 PM",
-            "pet": "Xy",
-            "med": "Antibiotics",
-            "dose": "2",
-            "given_by": "Gwy",
-            "status": "Given \u2705"
-        }
-    ]
+    "pets": [],
+    "schedules": [],
+    "intakes": []
 }

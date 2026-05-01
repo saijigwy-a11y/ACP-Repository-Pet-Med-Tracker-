@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from datetime import datetime
 import json
-from tkinter import font 
 
 # ===== COLOR PALETTE =====
 BG         = "#fdf2f8"
@@ -11,14 +10,14 @@ COLOR1     = "#e879a0"
 COLOR2     = "#c084fc"
 TEXT       = "#000000"
 TEXT2      = "#646970"
-TEXT3     = "#b83764"
+TEXT3      = "#b83764"
 MUTED_PINK = "#ebbbd6"
 WHITE      = "#ffffff"
 BORDER     = "#f3e8ff"
 DANGER     = "#f43f5e"
 SUCCESS    = "#34d399"
 CARD       = "#ffffff"
-NAV_FONT     = ("Montserrat SemiBold", 11)
+NAV_FONT   = ("Montserrat SemiBold", 11)
 
 DATA_FILE = "pets_data.json"
 
@@ -41,7 +40,6 @@ def today_str():
     return datetime.now().strftime("%Y-%m-%d")
 
 def doses_required_today(frequency: str) -> int:
-    """Return how many doses are expected today for a given frequency."""
     return {"Once daily": 1, "Twice daily": 2, "Every other day": 1,
             "Weekly": 1, "As needed": 0}.get(frequency, 1)
 
@@ -53,7 +51,6 @@ def doses_given_today(pet: str, med: str, intakes: list) -> int:
     )
 
 def schedule_status(schedule: dict, intakes: list) -> tuple[str, str]:
-    """Return (label, color) for a schedule entry."""
     freq = schedule.get("frequency", "Once daily")
     if freq == "As needed":
         return "As needed", TEXT2
@@ -104,16 +101,16 @@ class PetMedApp:
 
         self._nav_btns = []
         nav_items = [
-            ("Dashboard",      self.show_dashboard),
-            ("Add Pet",        self.show_add_pet),
-            ("Schedules",      self.show_schedules),
-            ("Record Intake",  self.show_record_intake),
-            ("View Records",   self.show_view_records),
+            ("Dashboard",     self.show_dashboard),
+            ("Add Pet",       self.show_add_pet),
+            ("Schedules",     self.show_schedules),
+            ("Record Intake", self.show_record_intake),
+            ("View Records",  self.show_view_records),
         ]
         links = tk.Frame(navbar, bg=NAVIGATION_COLOR)
         links.pack(side="left", padx=16)
         for text, cmd in nav_items:
-            btn = tk.Button(links, text=text, font=("Montserrat SemiBold", 11),
+            btn = tk.Button(links, text=text, font=NAV_FONT,
                             bg=NAVIGATION_COLOR, fg=TEXT2, bd=0, padx=14, pady=8,
                             cursor="hand2", activebackground="#fff0f7",
                             activeforeground=COLOR1, relief="flat",
@@ -130,18 +127,18 @@ class PetMedApp:
             active = t == text
             btn.configure(fg=COLOR1 if active else TEXT2,
                           bg="#fff0f7" if active else NAVIGATION_COLOR,
-                          font=NAV_FONT if active else NAV_FONT)
+                          font=NAV_FONT)
         command()
 
-    def _clear(self): # Destroy all widgets in the main content area so we can render a new screen
+    def _clear(self):
         for w in self.main.winfo_children():
             w.destroy()
- 
+
     # ── Reusable widgets ──────────────────────────────────────────────────────
 
-    def _card(self, parent, padx=20, pady=20): 
-        return tk.Frame(parent, bg=CARD, highlightthickness=1, highlightbackground=BORDER,
-                        padx=padx, pady=pady)
+    def _card(self, parent, padx=20, pady=20):
+        return tk.Frame(parent, bg=CARD, highlightthickness=1,
+                        highlightbackground=BORDER, padx=padx, pady=pady)
 
     def _section(self, parent, text):
         tk.Label(parent, text=text, font=("Montserrat Bold", 12),
@@ -159,7 +156,6 @@ class PetMedApp:
         return e
 
     def _scrollable(self):
-        """Return (canvas, container) with vertical scrollbar wired up."""
         canvas = tk.Canvas(self.main, bg=BG, highlightthickness=0)
         sb = ttk.Scrollbar(self.main, orient="vertical", command=canvas.yview)
         canvas.configure(yscrollcommand=sb.set)
@@ -183,39 +179,40 @@ class PetMedApp:
     def show_dashboard(self):
         self._clear()
         data = load_data()
-        _, cont = self._scrollable()
+        cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
+        cont.pack(fill="both", expand=True)
 
         # Greeting
         greeting = tk.Frame(cont, bg="#fce7f3", padx=15, pady=5,
-                    highlightthickness=0.5, highlightbackground="#f9a8d4")
+                            highlightthickness=0.5, highlightbackground="#f9a8d4")
         greeting.pack(fill="x", pady=(0, 10))
-
         inner = tk.Frame(greeting, bg="#fce7f3")
         inner.pack(anchor="center")
-        tk.Label(inner, text="    /)/)\n( ˶•༝•)\n୭( づ✿", font=("Montserrat Regular", 18), fg=TEXT3,
-                 bg="#fce7f3").pack(side="left", padx=(0, 12)) 
+        tk.Label(inner, text="    /)/)\n( ˶•༝•)\n୭( づ✿", font=("Montserrat Regular", 18),
+                 fg=TEXT3, bg="#fce7f3").pack(side="left", padx=(0, 12))
         text_frame = tk.Frame(inner, bg="#fce7f3")
         text_frame.pack(side="left")
-        tk.Label(text_frame, text="H e l l o ! \n Welcome to Paws & Pills", font=("Rubik Spray Paint Regular", 15),
+        tk.Label(text_frame, text="H e l l o ! \n Welcome to Paws & Pills",
+                 font=("Rubik Spray Paint Regular", 15),
                  bg="#fce7f3", fg=TEXT3).pack(anchor="center", pady=0)
 
         # Stat cards
         row = tk.Frame(cont, bg=BG, padx=10, pady=0)
         row.pack(fill="x", padx=10, pady=(0, 20))
         for icon, label, val, clr in [
-            ("𓇼 ⋆.˚ 𓆉 𓆝 𓆡⋆.˚ 𓇼", "Pets", f"{len(data['pets'])}", COLOR1),
-            ("────୨ৎ────", "Schedules", f"{len(data['schedules'])}",  COLOR2),
-            ("𓇼 ⋆.˚ 𓆉 𓆝 𓆡⋆.˚ 𓇼", "Total Logs", f"{len(data['intakes'])}", "#f59e0b"),
+            ("𓇼 ⋆.˚ 𓆉 𓆝 𓆡⋆.˚ 𓇼", "Pets",       f"{len(data['pets'])}",      COLOR1),
+            ("────୨ৎ────",             "Schedules",  f"{len(data['schedules'])}", COLOR2),
+            ("𓇼 ⋆.˚ 𓆉 𓆝 𓆡⋆.˚ 𓇼", "Total Logs", f"{len(data['intakes'])}",   "#f59e0b"),
         ]:
             card = self._card(row, padx=18, pady=16)
             card.pack(side="left", fill="both", expand=True, padx=(0, 12))
             top = tk.Frame(card, bg=CARD)
             top.pack(fill="both", expand=True)
-            tk.Label(top, text=icon, font=("Montserrat Bold", 15), bg=CARD, fg=MUTED_PINK).pack(side="top")
+            tk.Label(top, text=icon,  font=("Montserrat Bold", 15), bg=CARD, fg=MUTED_PINK).pack(side="top")
             tk.Label(top, text=label, font=("Montserrat Bold", 20), bg=CARD).pack(side="left")
-            tk.Label(top, text=val,  font=("Montserrat Bold", 22), bg=CARD, fg=clr).pack(side="right")
+            tk.Label(top, text=val,   font=("Montserrat Bold", 22), bg=CARD, fg=clr).pack(side="right")
 
-        # Today's schedule status
+        # Today's medication status
         self._section(cont, "Medication Status")
         sched_card = self._card(cont, padx=16, pady=16)
         sched_card.pack(fill="x", pady=(0, 12))
@@ -227,28 +224,14 @@ class PetMedApp:
             cols = ("pet", "med", "frequency", "today")
             tree = ttk.Treeview(sched_card, columns=cols, show="headings",
                                 style="Pink.Treeview", height=min(len(data["schedules"]), 6))
-            for col, head, w in zip(cols, ("Pet", "Medication", "Frequency", "Status"), [130, 160, 130, 200]):
+            for col, head, w in zip(cols, ("Pet", "Medication", "Frequency", "Status"),
+                                    [130, 160, 130, 200]):
                 tree.heading(col, text=head)
                 tree.column(col, width=w, anchor="center")
             tree.pack(fill="x")
             for sc in data["schedules"]:
-                label, _ = schedule_status(sc, data["intakes"])
-                tree.insert("", "end", values=(sc["pet"], sc["med"], sc["frequency"], label))
-
-        # Recent history
-        self._section(cont, "Recent Intake History")
-        hist_card = self._card(cont, padx=16, pady=16)
-        hist_card.pack(fill="both", expand=True)
-        cols = ("date", "pet", "med", "dose", "status")
-        tree = ttk.Treeview(hist_card, columns=cols, show="headings",
-                            style="Pink.Treeview", height=8)
-        for col, w in zip(cols, [170, 110, 130, 100, 110]):
-            tree.heading(col, text=col.capitalize())
-            tree.column(col, width=w, anchor="center")
-        tree.pack(fill="both", expand=True)
-        for i in reversed(data["intakes"][-12:]):
-            tree.insert("", "end", values=(i.get("date"), i.get("pet"),
-                                           i.get("med"), i.get("dose"), i.get("status")))
+                lbl, _ = schedule_status(sc, data["intakes"])
+                tree.insert("", "end", values=(sc["pet"], sc["med"], sc["frequency"], lbl))
 
     # ── ADD PET ───────────────────────────────────────────────────────────────
 
@@ -272,9 +255,9 @@ class PetMedApp:
         age_ent = self._entry(card)
 
         def save():
-            name = name_ent.get().strip()
+            name    = name_ent.get().strip()
             species = species_ent.get().strip()
-            age = age_ent.get().strip()
+            age     = age_ent.get().strip()
             if not name or not age:
                 messagebox.showwarning("Missing Fields", "Pet Name and Age are required.")
                 return
@@ -294,10 +277,11 @@ class PetMedApp:
 
         tk.Label(cont, text="Medication Schedules", font=("Montserrat Bold", 20),
                  bg=BG, fg=TEXT).pack(anchor="w", pady=(0, 4))
-        tk.Label(cont, text="Set a frequency per pet+medication pair. The dashboard will track daily progress.",
+        tk.Label(cont,
+                 text="Set a frequency per pet+medication pair. The dashboard will track daily progress.",
                  font=("Montserrat Regular", 10), bg=BG, fg=TEXT2).pack(anchor="w", pady=(0, 16))
 
-        # ── Add schedule form ──
+        # Add schedule form
         form_card = self._card(cont, padx=28, pady=24)
         form_card.pack(fill="x", pady=(0, 20))
         tk.Label(form_card, text="Add New Schedule", font=("Montserrat Bold", 12),
@@ -305,7 +289,8 @@ class PetMedApp:
 
         self._field_label(form_card, "Pet")
         pet_names = [p["name"] for p in data["pets"]] or ["No pets added"]
-        pet_cb = ttk.Combobox(form_card, values=pet_names, state="readonly", font=("Montserrat Regular", 11))
+        pet_cb = ttk.Combobox(form_card, values=pet_names, state="readonly",
+                              font=("Montserrat Regular", 11))
         pet_cb.pack(fill="x", ipady=6)
         if pet_names:
             pet_cb.current(0)
@@ -314,18 +299,18 @@ class PetMedApp:
         med_ent = self._entry(form_card)
 
         self._field_label(form_card, "Frequency")
-        freq_cb = ttk.Combobox(form_card, values=FREQUENCIES, state="readonly", font=("Montserrat Regular", 11))
+        freq_cb = ttk.Combobox(form_card, values=FREQUENCIES, state="readonly",
+                               font=("Montserrat Regular", 11))
         freq_cb.pack(fill="x", ipady=6)
         freq_cb.current(0)
 
         def add_schedule():
-            pet = pet_cb.get()
-            med = med_ent.get().strip()
+            pet  = pet_cb.get()
+            med  = med_ent.get().strip()
             freq = freq_cb.get()
             if pet == "No pets added" or not med:
                 messagebox.showwarning("Missing Fields", "Select a pet and enter a medication name.")
                 return
-            # Prevent duplicates
             if any(s["pet"] == pet and s["med"] == med for s in data["schedules"]):
                 messagebox.showwarning("Duplicate", f"A schedule for {pet} / {med} already exists.")
                 return
@@ -335,7 +320,7 @@ class PetMedApp:
 
         self._primary_btn(form_card, "Add Schedule", add_schedule)
 
-        # ── Current schedules table ──
+        # Current schedules table
         self._section(cont, "Current Schedules")
         table_card = self._card(cont, padx=16, pady=16)
         table_card.pack(fill="both", expand=True)
@@ -351,10 +336,9 @@ class PetMedApp:
         tree.pack(fill="both", expand=True)
 
         for sc in data["schedules"]:
-            status_label, _ = schedule_status(sc, data["intakes"])
-            tree.insert("", "end", values=(sc["pet"], sc["med"], sc["frequency"], status_label))
+            lbl, _ = schedule_status(sc, data["intakes"])
+            tree.insert("", "end", values=(sc["pet"], sc["med"], sc["frequency"], lbl))
 
-        # Delete
         btn_row = tk.Frame(table_card, bg=CARD)
         btn_row.pack(anchor="e", pady=(10, 0))
 
@@ -391,35 +375,45 @@ class PetMedApp:
 
         self._field_label(card, "Select Pet")
         pet_names = [p["name"] for p in data["pets"]] or ["No pets added"]
-        pet_cb = ttk.Combobox(card, values=pet_names, state="readonly", font=("Montserrat Regular", 11))
+        pet_cb = ttk.Combobox(card, values=pet_names, state="readonly",
+                              font=("Montserrat Regular", 11))
         pet_cb.pack(fill="x", ipady=6)
         if pet_names:
             pet_cb.current(0)
 
-        self._field_label(card, "Medication Name")
-        med_ent = self._entry(card)
+        self._field_label(card, "Medication")
+        med_cb = ttk.Combobox(card, state="readonly", font=("Montserrat Regular", 11))
+        med_cb.pack(fill="x", ipady=6)
 
-        self._field_label(card, "Dosage (e.g. 1 pill, 5ml)")
-        dose_ent = self._entry(card)
+        def refresh_meds(event=None):
+            pet  = pet_cb.get()
+            meds = [s["med"] for s in data["schedules"] if s["pet"] == pet]
+            if meds:
+                med_cb["values"] = meds
+                med_cb.current(0)
+            else:
+                med_cb["values"] = ["No schedules for this pet"]
+                med_cb.set("No schedules for this pet")
+
+        pet_cb.bind("<<ComboboxSelected>>", refresh_meds)
+        refresh_meds()  # populate on load
 
         self._field_label(card, "Given By")
         user_ent = self._entry(card)
 
         def save_intake():
             pet  = pet_cb.get()
-            med  = med_ent.get().strip()
-            dose = dose_ent.get().strip()
+            med  = med_cb.get()
             user = user_ent.get().strip()
-            if pet == "No pets added" or not med or not dose:
-                messagebox.showwarning("Missing Fields", "Pet, medication, and dosage are required.")
+            if pet == "No pets added" or not med or med == "No schedules for this pet":
+                messagebox.showwarning("Missing Fields", "Select a valid pet and medication.")
                 return
             data["intakes"].append({
                 "date":     datetime.now().strftime("%Y-%m-%d %I:%M %p"),
                 "pet":      pet,
                 "med":      med,
-                "dose":     dose,
                 "given_by": user,
-                "status":   "Given"
+                "status":   "Given ✅"
             })
             save_data(data)
             messagebox.showinfo("Success", "Intake recorded!")
@@ -448,9 +442,10 @@ class PetMedApp:
 
         def display_tab(cat, pet_filter="All"):
             for c, b in tab_btns.items():
-                b.configure(bg=COLOR1 if c == cat else WHITE,
-                            fg=WHITE  if c == cat else TEXT2,
-                            font=("Montserrat Bold", 10) if c == cat else ("Montserrat Regular", 10))
+                b.configure(
+                    bg=COLOR1 if c == cat else WHITE,
+                    fg=WHITE   if c == cat else TEXT2,
+                    font=("Montserrat Bold", 10) if c == cat else ("Montserrat Regular", 10))
 
             for w in table_cont.winfo_children():
                 w.destroy()
@@ -458,7 +453,7 @@ class PetMedApp:
             card = self._card(table_cont, padx=16, pady=16)
             card.pack(fill="both", expand=True)
 
-            # Per-pet filter only on history tab
+            # Per-pet filter on history tab
             if cat == "intakes":
                 filter_frame = tk.Frame(card, bg=CARD)
                 filter_frame.pack(fill="x", pady=(0, 10))
@@ -474,19 +469,19 @@ class PetMedApp:
 
             # Columns per tab
             if cat == "pets":
-                cols = ("name", "species", "age")
+                cols  = ("name", "species", "age")
                 heads = ("Pet Name", "Species", "Age")
-                rows = data["pets"]
+                rows  = data["pets"]
             elif cat == "schedules":
-                cols = ("pet", "med", "frequency", "status")
+                cols  = ("pet", "med", "frequency", "status")
                 heads = ("Pet", "Medication", "Frequency", "Today's Status")
-                rows = [{"pet": s["pet"], "med": s["med"],
-                         "frequency": s["frequency"],
-                         "status": schedule_status(s, data["intakes"])[0]}
-                        for s in data["schedules"]]
+                rows  = [{"pet": s["pet"], "med": s["med"],
+                          "frequency": s["frequency"],
+                          "status": schedule_status(s, data["intakes"])[0]}
+                         for s in data["schedules"]]
             else:  # intakes
-                cols  = ("date", "pet", "med", "dose", "status")
-                heads = ("Date", "Pet", "Medication", "Dose", "Status")
+                cols  = ("date", "pet", "med", "given_by", "status")
+                heads = ("Date", "Pet", "Medication", "Given By", "Status")
                 rows  = [i for i in data["intakes"]
                          if pet_filter == "All" or i.get("pet") == pet_filter]
 
@@ -498,34 +493,50 @@ class PetMedApp:
             tree.pack(fill="both", expand=True)
 
             for row in rows:
-                tree.insert("", "end", values=tuple(row[k] for k in cols))
+                tree.insert("", "end", values=tuple(row.get(k, "") for k in cols))
 
-            # Delete (not on intakes — history is immutable)
-            if cat != "intakes":
-                btn_row = tk.Frame(card, bg=CARD)
-                btn_row.pack(anchor="e", pady=(10, 0))
+            # Delete button — all tabs
+            btn_row = tk.Frame(card, bg=CARD)
+            btn_row.pack(anchor="e", pady=(10, 0))
 
-                def delete_item(c=cat):
-                    sel = tree.selection()
-                    if not sel:
-                        return
-                    first_val = tree.item(sel[0])["values"][0]
-                    key = "pets" if c == "pets" else "schedules"
-                    if messagebox.askyesno("Confirm Delete", f"Delete '{first_val}'?"):
-                        data[key] = [x for x in data[key] if list(x.values())[0] != first_val]
-                        save_data(data)
-                        display_tab(c)
+            def delete_item(c=cat, pf=pet_filter):
+                sel = tree.selection()
+                if not sel:
+                    return
+                vals = tree.item(sel[0])["values"]
 
-                tk.Button(btn_row, text="🗑  Delete Selected",
-                          bg=DANGER, fg=WHITE, font=("Montserrat Bold", 9),
-                          bd=0, padx=12, pady=6, cursor="hand2",
-                          command=delete_item).pack()
+                if c == "pets":
+                    key     = "pets"
+                    match   = lambda x: x["name"] == vals[0]
+                    confirm = f"Delete pet '{vals[0]}'?"
+                elif c == "schedules":
+                    key     = "schedules"
+                    match   = lambda x: x["pet"] == vals[0] and x["med"] == vals[1]
+                    confirm = f"Delete schedule for '{vals[0]} / {vals[1]}'?"
+                else:  # intakes — match on date + pet + med
+                    key     = "intakes"
+                    match   = lambda x: (x.get("date") == vals[0]
+                                         and x.get("pet") == vals[1]
+                                         and x.get("med") == vals[2])
+                    confirm = f"Delete intake record for {vals[1]} — {vals[2]} on {vals[0]}?"
+
+                if messagebox.askyesno("Confirm Delete", confirm):
+                    for i, x in enumerate(data[key]):
+                        if match(x):
+                            data[key].pop(i)
+                            break
+                    save_data(data)
+                    display_tab(c, pf)
+
+            tk.Button(btn_row, text="🗑  Delete Selected",
+                      bg=DANGER, fg=WHITE, font=("Montserrat Bold", 9),
+                      bd=0, padx=12, pady=6, cursor="hand2",
+                      command=delete_item).pack()
 
         for label, key in [("Pets 🐾", "pets"), ("Schedules 📅", "schedules"), ("History 📋", "intakes")]:
             b = tk.Button(tab_frame, text=label, font=("Montserrat Regular", 10),
                           bg=WHITE, fg=TEXT2, bd=0, padx=16, pady=8,
-                          cursor="hand2", highlightthickness=1,
-                          highlightbackground=BORDER,
+                          cursor="hand2", highlightthickness=1, highlightbackground=BORDER,
                           command=lambda k=key: display_tab(k))
             b.pack(side="left", padx=(0, 8))
             tab_btns[key] = b
