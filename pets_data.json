@@ -1,5 +1,25 @@
 {
-    "pets": [],
-    "medications": [],
-    "intakes": []
+    "pets": [
+        {
+            "name": "Xy",
+            "species": "Dog",
+            "age": "19"
+        },
+        {
+            "name": "Pengui",
+            "species": "Cat",
+            "age": "1"
+        }
+    ],
+    "schedules": [],
+    "intakes": [
+        {
+            "date": "2026-05-01 11:49 AM",
+            "pet": "Xy",
+            "med": "Anti baliw",
+            "dose": "1",
+            "given_by": "Gwy",
+            "status": "Given \u00e2\u0153\u2026"
+        }
+    ]
 }

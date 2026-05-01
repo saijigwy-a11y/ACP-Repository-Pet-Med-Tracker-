@@ -2,10 +2,11 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from datetime import datetime
 import json
+from tkinter import font 
 
 # ===== COLOR PALETTE =====
 BG         = "#fdf2f8"
-NAVIGATION = "#ffffff"
+NAVIGATION_COLOR = "#ffffff"
 COLOR1     = "#e879a0"
 COLOR2     = "#c084fc"
 TEXT       = "#1e1b4b"
@@ -65,9 +66,9 @@ class PetMedApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Paws and Pills")
-        self.root.geometry("1100x720")
+        self.root.geometry("1100x700")
         self.root.configure(bg=BG)
-        self.root.resizable(True, True)
+        self.root.resizable(False, False)
         self._setup_styles()
         self._build_layout()
         self.show_dashboard()
@@ -91,12 +92,12 @@ class PetMedApp:
     # ── Layout skeleton ───────────────────────────────────────────────────────
 
     def _build_layout(self):
-        navbar = tk.Frame(self.root, bg=NAVIGATION, height=64)
+        navbar = tk.Frame(self.root, bg=NAVIGATION_COLOR, height=64)
         navbar.pack(side="top", fill="x")
         navbar.pack_propagate(False)
 
-        tk.Label(navbar, text="Paws and Pills", font=("Segoe UI Bold", 16),
-                 bg=NAVIGATION, fg=TEXT).pack(side="left", padx=24)
+        tk.Label(navbar, text="Paws and Pills", font=("Indie FLower Bold", 16),
+                 bg=NAVIGATION_COLOR, fg=TEXT).pack(side="left", padx=24)
 
         self._nav_btns = []
         nav_items = [
@@ -106,11 +107,11 @@ class PetMedApp:
             ("Record Intake",  self.show_record_intake),
             ("View Records",   self.show_view_records),
         ]
-        links = tk.Frame(navbar, bg=NAVIGATION)
+        links = tk.Frame(navbar, bg=NAVIGATION_COLOR)
         links.pack(side="left", padx=16)
         for text, cmd in nav_items:
             btn = tk.Button(links, text=text, font=("Segoe UI Semibold", 10),
-                            bg=NAVIGATION, fg=TEXT2, bd=0, padx=14, pady=8,
+                            bg=NAVIGATION_COLOR, fg=TEXT2, bd=0, padx=14, pady=8,
                             cursor="hand2", activebackground="#fff0f7",
                             activeforeground=COLOR1, relief="flat",
                             command=lambda c=cmd, t=text: self._nav(c, t))
@@ -125,19 +126,19 @@ class PetMedApp:
         for btn, t in self._nav_btns:
             active = t == text
             btn.configure(fg=COLOR1 if active else TEXT2,
-                          bg="#fff0f7" if active else NAVIGATION,
+                          bg="#fff0f7" if active else NAVIGATION_COLOR,
                           font=("Segoe UI Bold", 10) if active else ("Segoe UI Semibold", 10))
         command()
 
-    def _clear(self):
+    def _clear(self): # Destroy all widgets in the main content area so we can render a new screen
         for w in self.main.winfo_children():
             w.destroy()
 
     # ── Reusable widgets ──────────────────────────────────────────────────────
 
-    def _card(self, parent, padx=20, pady=20):
+    def _card(self, parent, padx=20, pady=20): 
         return tk.Frame(parent, bg=CARD, highlightthickness=1,
-                        highlightbackground=BORDER, padx=padx, pady=pady)
+                        padx=padx, pady=pady)
 
     def _section(self, parent, text):
         tk.Label(parent, text=text, font=("Segoe UI Bold", 11),
@@ -181,35 +182,37 @@ class PetMedApp:
         data = load_data()
         _, cont = self._scrollable()
 
-        # Hero
-        hero = tk.Frame(cont, bg="#fce7f3", padx=28, pady=22,
-                        highlightthickness=1, highlightbackground="#f9a8d4")
-        hero.pack(fill="x", pady=(0, 20))
-        lf = tk.Frame(hero, bg="#fce7f3")
-        lf.pack(side="left", fill="both", expand=True)
-        tk.Label(lf, text="Good day! 👋", font=("Segoe UI", 12),
+        # Greeting
+        greeting = tk.Frame(cont, bg="#fce7f3", padx=15, pady=5,
+                    highlightthickness=0.5, highlightbackground="#f9a8d4")
+        greeting.pack(fill="x", pady=(0, 10))
+
+        inner = tk.Frame(greeting, bg="#fce7f3")
+        inner.pack(anchor="center")
+        tk.Label(inner, text="    /)/)\n( ˶•༝•)\n୭( づ✿", font=("Segoe UI", 18),
+                 bg="#fce7f3").pack(side="left", padx=(0, 12))
+        text_frame = tk.Frame(inner, bg="#fce7f3")
+        text_frame.pack(side="left")
+        tk.Label(text_frame, text="Hello! 👋", font=("Segoe UI", 12),
                  bg="#fce7f3", fg=COLOR1).pack(anchor="w")
-        tk.Label(lf, text="Check your Pets & Medication Schedule",
-                 font=("Segoe UI Bold", 18), bg="#fce7f3", fg=TEXT).pack(anchor="w", pady=(4, 2))
-        tk.Label(lf, text="Keep your furry friends healthy 🐶🐱",
-                 font=("Segoe UI", 10), bg="#fce7f3", fg="#be185d").pack(anchor="w")
-        tk.Label(hero, text="🐾", font=("Segoe UI", 56), bg="#fce7f3").pack(side="right", padx=20)
+        tk.Label(text_frame, text="Welcome to Paws and Pills",
+                 font=("Segoe UI Bold", 20), bg="#fce7f3", fg=TEXT).pack(anchor="w", pady=1)
 
         # Stat cards
-        row = tk.Frame(cont, bg=BG)
-        row.pack(fill="x", pady=(0, 6))
-        for icon, val, label, clr in [
-            ("🐾", f"{len(data['pets'])}",     "Pets",       COLOR1),
-            ("📅", f"{len(data['schedules'])}", "Schedules",  COLOR2),
-            ("📋", f"{len(data['intakes'])}",   "Total Logs", "#f59e0b"),
+        row = tk.Frame(cont, bg=BG, padx=10, pady=0)
+        row.pack(fill="x", padx=10, pady=(0, 20))
+        for icon, label, val, clr in [
+            ("𓇼 ⋆.˚ 𓆉 𓆝 𓆡⋆.˚ 𓇼", "Pets", f"{len(data['pets'])}", COLOR1),
+            ("────୨ৎ────", "Schedules", f"{len(data['schedules'])}",  COLOR2),
+            ("𓇼 ⋆.˚ 𓆉 𓆝 𓆡⋆.˚ 𓇼", "Total Logs", f"{len(data['intakes'])}", "#f59e0b"),
         ]:
             card = self._card(row, padx=18, pady=16)
             card.pack(side="left", fill="both", expand=True, padx=(0, 12))
             top = tk.Frame(card, bg=CARD)
-            top.pack(fill="x")
-            tk.Label(top, text=icon, font=("Segoe UI", 20), bg=CARD).pack(side="left")
+            top.pack(fill="both", expand=True)
+            tk.Label(top, text=icon, font=("Segoe UI Bold", 15), bg=CARD).pack(side="top")
+            tk.Label(top, text=label, font=("Segoe UI Bold", 20), bg=CARD).pack(side="left")
             tk.Label(top, text=val,  font=("Segoe UI Bold", 22), bg=CARD, fg=clr).pack(side="right")
-            tk.Label(card, text=label, font=("Segoe UI", 10), bg=CARD, fg=TEXT2).pack(anchor="w", pady=(6, 0))
 
         # Today's schedule status
         self._section(cont, "Today's Medication Status")
