@@ -24,6 +24,11 @@
             "name": "Andres",
             "species": "Alien",
             "age": "1000"
+        },
+        {
+            "name": "Renzo",
+            "species": "Tuberkulosis Kwitis",
+            "age": "70 months"
         }
     ],
     "schedules": [
@@ -40,6 +45,22 @@
                 "Saturday",
                 "Sunday"
             ]
+        },
+        {
+            "pet": "Pengui",
+            "med": "Antibiotics",
+            "frequency": "Once a day",
+            "days": [
+                "Wednesday"
+            ]
+        },
+        {
+            "pet": "Renzo",
+            "med": "Medicol",
+            "frequency": "Once a day",
+            "days": [
+                "Thursday"
+            ]
         }
     ],
     "intakes": [
@@ -48,6 +69,13 @@
             "pet": "Andres",
             "med": "Rugby",
             "given_by": "Aifa",
+            "status": "Given \u2705"
+        },
+        {
+            "date": "2026-05-06 01:05 PM",
+            "pet": "Pengui",
+            "med": "Antibiotics",
+            "given_by": "Luan",
             "status": "Given \u2705"
         }
     ]

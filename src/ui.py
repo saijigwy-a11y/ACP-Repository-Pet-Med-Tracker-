@@ -1,82 +1,14 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 from datetime import datetime
-import json
-
-# ===== COLOR PALETTE =====
-BG         = "#fdf2f8"
-NAVIGATION_COLOR = "#ffffff"
-COLOR1     = "#e879a0" # for highlights, buttons, active states
-COLOR2     = "#c084fc" # for secondary highlights, stat cards, etc.
-TEXT       = "#000000" # main text
-TEXT2      = "#646970" # secondary text
-TEXT3      = "#b83764" # third text
-MUTED_PINK = "#ebbbd6" # for subtle accents, icons, etc.
-WHITE      = "#ffffff" # for cards, backgrounds, etc.
-BORDER     = "#f3e8ff" # for borders, dividers, etc.
-DANGER     = "#f43f5e" # for delete buttons, warnings, etc.
-SUCCESS    = "#34d399" # for success status, confirmations, etc.
-CARD       = "#ffffff" # for cards, forms, tables, etc. (white for clean look, with BORDER for definition)  
-NAV_FONT   = ("Montserrat SemiBold", 11)
-
-DATA_FILE = "pets_data.json"
+from .color_palette import BG, NAVIGATION_COLOR, COLOR1, COLOR2, TEXT, TEXT2, TEXT3, MUTED_PINK, WHITE, BORDER, DANGER, SUCCESS, CARD, NAV_FONT
+from .util import today_str, today_weekday, doses_required_today, doses_given_today, is_due_today, schedule_status
 
 FREQUENCIES  = ["Once a day", "Twice a day", "Every other day"]
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
-# DATA HELPER 
-def load_data():
-    try:
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {"pets": [], "schedules": [], "intakes": []}
-
-def save_data(d): # used to save the data back to the json file after any changes are made to it in the app
-    with open(DATA_FILE, "w") as f:
-        json.dump(d, f, indent=4)
-
-def today_str():
-    return datetime.now().strftime("%Y-%m-%d")
-
-def today_weekday() -> str:
-    """Return full weekday name for today, e.g. 'Monday'."""
-    return datetime.now().strftime("%A")
-
-def doses_required_today(frequency: str) -> int:
-    return {"Once a day": 1, "Twice a day": 2,
-            "Every other day": 1}.get(frequency, 1)
-
-def doses_given_today(pet: str, med: str, intakes: list) -> int:
-    return sum(
-        1 for i in intakes
-        if i.get("pet") == pet and i.get("med") == med
-        and i.get("date", "").startswith(datetime.now().strftime("%B %#d, %Y %I:%M %p"))
-    )
-
-def is_due_today(schedule: dict) -> bool: # used to determine if a medication is due today based on its schedule and the current date
-    freq = schedule.get("frequency", "Once a day")
-    days = schedule.get("days", [])
-    # If days are specified, always check against them regardless of frequency
-    if days:
-        return today_weekday() in days
-    # No days specified = every day
-    return True
-
-def schedule_status(schedule: dict, intakes: list) -> tuple:
-    if not is_due_today(schedule):
-        return "Not due today", TEXT2
-    freq     = schedule.get("frequency", "Once a day")
-    required = doses_required_today(freq)
-    given    = doses_given_today(schedule["pet"], schedule["med"], intakes)
-    if given >= required:
-        return f"Done ({given}/{required})", SUCCESS
-    return f"Pending ⏳ ({given}/{required})", "#f59e0b"
-
-# ── App ───────────────────────────────────────────────────────────────────────
-
 class PetMedApp:
-    def __init__(self, root):
+    def __init__(self, root, save_data, load_data):
         self.root = root
         self.root.title("Paws and Pills")
         self.root.geometry("1100x900")
@@ -84,21 +16,24 @@ class PetMedApp:
         self.root.resizable(True, True)
         self._setup_styles()
         self._build_layout()
+        
+        self.save_data = save_data
+        self.load_data = load_data
+        
         self.show_dashboard()
 
-    #STYLES────────────────────────────────────────────────────────────────
+    # style ng table yees >_<
     def _setup_styles(self):
         s = ttk.Style()
         s.theme_use("clam")
         s.configure("Pink.Treeview",
                     background=WHITE, foreground=TEXT, fieldbackground=WHITE, rowheight=38,
                     font=("Montserrat Regular", 10), borderwidth=0)
-        s.configure("Pink.Treeview.Heading",
+        s.configure("Pink.Treeview.Heading", 
                     background=BG, foreground=TEXT2, font=("Montserrat Bold", 9), borderwidth=0, relief="flat")
         s.map("Pink.Treeview", background=[("selected", "#fce7f3")], foreground=[("selected", COLOR1)])
 
-    # ── Layout skeleton ───────────────────────────────────────────────────────
-
+    # NAVIGATION 
     def _build_layout(self):
         navbar = tk.Frame(self.root, bg=NAVIGATION_COLOR, height=64)
         navbar.pack(side="top", fill="x")
@@ -110,14 +45,14 @@ class PetMedApp:
         nav_items = [ 
             ("Dashboard",     self.show_dashboard),
             ("Add Pet",       self.show_add_pet),
-            ("Schedules",     self.show_schedules),
+            ("Medication Schedules",     self.show_schedules),
             ("Record Intake", self.show_record_intake),
             ("View Records",  self.show_view_records),
         ]
         links = tk.Frame(navbar, bg=NAVIGATION_COLOR)
         links.pack(side="left", padx=16)
         for text, cmd in nav_items:
-            btn = tk.Button(links, text=text, font=NAV_FONT, bg=NAVIGATION_COLOR, fg=TEXT2, bd=0, padx=14, pady=8, cursor="hand2", activebackground="#fff0f7",
+            btn = tk.Button(links, text=text, font=NAV_FONT, bg=NAVIGATION_COLOR, fg=TEXT2, bd=0, padx=14, pady=8, cursor="heart", activebackground="#fff0f7",
                             activeforeground=COLOR1, relief="flat", command=lambda c=cmd, t=text: self._nav(c, t))
             btn.pack(side="left", padx=2)
             self._nav_btns.append((btn, text))
@@ -138,28 +73,28 @@ class PetMedApp:
         for w in self.main.winfo_children():
             w.destroy()
 
-    # ── Reusable widgets ──────────────────────────────────────────────────────
+    # WIDGETS/STYLES ──────────────────────────────────────────────────────
 
-    def _card(self, parent, padx=20, pady=20):
+    def _card(self, parent, padx=20, pady=20): # card like frame for forms and tables
         return tk.Frame(parent, bg=CARD, highlightthickness=1,
                         highlightbackground=BORDER, padx=padx, pady=pady)
 
-    def _section(self, parent, text):
+    def _section(self, parent, text): # for section headers like "Medication Status", "Current Schedules"
         tk.Label(parent, text=text, font=("Montserrat Bold", 12),
                  bg=BG, fg=TEXT).pack(anchor="w", pady=(14, 4))
 
-    def _field_label(self, parent, text):
+    def _field_label(self, parent, text): # for labels above form fields like "Pet Name", "Medication"
         tk.Label(parent, text=text, bg=CARD, fg=TEXT2,
                  font=("Montserrat Bold", 9)).pack(anchor="w", pady=(10, 2))
 
-    def _entry(self, parent):
+    def _entry(self, parent): # pag nag eentry so consistent yung style
         e = tk.Entry(parent, font=("Montserrat Regular", 11), bd=0,
                      highlightthickness=1, highlightbackground="#f3e8ff",
                      bg="#fdf4ff", fg=TEXT)
         e.pack(fill="x", ipady=9)
         return e
 
-    def _scrollable(self):
+    def _scrollable(self): # so we can scroll.
         canvas = tk.Canvas(self.main, bg=BG, highlightthickness=0)
         sb = ttk.Scrollbar(self.main, orient="vertical", command=canvas.yview)
         canvas.configure(yscrollcommand=sb.set)
@@ -171,7 +106,7 @@ class PetMedApp:
         canvas.bind("<Configure>", lambda e: canvas.itemconfig(win, width=e.width))
         return canvas, cont
 
-    def _primary_btn(self, parent, text, command):
+    def _primary_btn(self, parent, text, command): # style ng buttons pag nag sasave 
         tk.Frame(parent, bg=CARD, height=14).pack()
         tk.Button(parent, text=text, bg=COLOR1, fg=WHITE,
                   font=("Montserrat Bold", 11), bd=0, pady=12,
@@ -197,7 +132,7 @@ class PetMedApp:
 
     def show_dashboard(self):
         self._clear()
-        data = load_data()
+        data = self.load_data()
         cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
         cont.pack(fill="both", expand=True)
 
@@ -226,7 +161,7 @@ class PetMedApp:
             # Create a stat card for each overview
             card = self._card(row, padx=18, pady=16)
             card.pack(side="left", fill="both", expand=True, padx=(0, 12))
-            top = tk.Frame(card, bg=CARD)
+            top = tk.Frame(card, bg=CARD) # used 
             top.pack(fill="both", expand=True)
             tk.Label(top, text=kyotie,  font=("Montserrat Bold", 15), bg=CARD, fg=MUTED_PINK).pack(side="top")
             tk.Label(top, text=label, font=("Montserrat Bold", 20), bg=CARD).pack(side="left")
@@ -260,7 +195,7 @@ class PetMedApp:
 
     def show_add_pet(self):
         self._clear()
-        data = load_data()
+        data = self.load_data()
         cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
         cont.pack(fill="both", expand=True)
 
@@ -285,7 +220,7 @@ class PetMedApp:
                 messagebox.showwarning("Missing Fields", "Pet Name and Age are required.")
                 return
             data["pets"].append({"name": name, "species": species, "age": age})
-            save_data(data)
+            self.save_data(data)
             messagebox.showinfo("Success", f"✅ {name} has been added!")
             self.show_dashboard()
 
@@ -295,16 +230,13 @@ class PetMedApp:
 
     def show_schedules(self):
         self._clear()
-        data = load_data()
+        data = self.load_data()
         _, cont = self._scrollable()
 
         tk.Label(cont, text="Medication Schedules", font=("Montserrat Bold", 20),
                  bg=BG, fg=TEXT).pack(anchor="w", pady=(0, 4))
-        tk.Label(cont,
-                 text="Set a frequency per pet+medication pair. The dashboard will track daily progress.",
-                 font=("Montserrat Regular", 10), bg=BG, fg=TEXT2).pack(anchor="w", pady=(0, 16))
 
-        # ── Add schedule form ──
+        # SCHEDULE FORM
         form_card = self._card(cont, padx=28, pady=24)
         form_card.pack(fill="x", pady=(0, 20))
         tk.Label(form_card, text="Add New Schedule", font=("Montserrat Bold", 12),
@@ -396,7 +328,7 @@ class PetMedApp:
                 "frequency": freq,
                 "days":      selected_days   # empty = every day for Once/Twice a day
             })
-            save_data(data)
+            self.save_data(data)
             self.show_schedules()
 
         self._primary_btn(form_card, "Add Schedule", add_schedule)
@@ -433,7 +365,7 @@ class PetMedApp:
             if messagebox.askyesno("Delete Schedule", f"Remove schedule for {pet_v} / {med_v}?"):
                 data["schedules"] = [s for s in data["schedules"]
                                      if not (s["pet"] == pet_v and s["med"] == med_v)]
-                save_data(data)
+                self.save_data(data)
                 self.show_schedules()
 
         tk.Button(btn_row, text="🗑  Delete Selected",
@@ -445,7 +377,7 @@ class PetMedApp:
 
     def show_record_intake(self):
         self._clear()
-        data = load_data()
+        data = self.load_data()
         cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
         cont.pack(fill="both", expand=True)
 
@@ -467,7 +399,7 @@ class PetMedApp:
         med_cb = ttk.Combobox(card, state="readonly", font=("Montserrat Regular", 11))
         med_cb.pack(fill="x", ipady=6)
 
-        def refresh_meds(event=None):
+        def refresh_meds():
             pet  = pet_cb.get()
             meds = [s["med"] for s in data["schedules"] if s["pet"] == pet]
             if meds:
@@ -497,7 +429,7 @@ class PetMedApp:
                 "given_by": user,
                 "status":   "Given ✅"
             })
-            save_data(data)
+            self.save_data(data)
             messagebox.showinfo("Success", "Intake recorded!")
             self.show_dashboard()
 
@@ -507,7 +439,7 @@ class PetMedApp:
 
     def show_view_records(self):
         self._clear()
-        data = load_data()
+        data = self.load_data()
         _, cont = self._scrollable()
 
         tk.Label(cont, text="View Records", font=("Montserrat Bold", 20),
@@ -607,7 +539,7 @@ class PetMedApp:
                         if match(x):
                             data[key].pop(i)
                             break
-                    save_data(data)
+                    self.save_data(data)
                     display_tab(c, pf)
 
             tk.Button(btn_row, text="🗑  Delete Selected",
@@ -624,9 +556,3 @@ class PetMedApp:
             tab_btns[key] = b
 
         display_tab("pets")
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    PetMedApp(root)
-    root.mainloop()

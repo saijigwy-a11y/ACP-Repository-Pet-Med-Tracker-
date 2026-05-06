@@ -1,0 +1,14 @@
+BG         = "#fdf2f8"
+NAVIGATION_COLOR = "#ffffff"
+COLOR1     = "#e879a0" # for highlights, buttons, active states
+COLOR2     = "#c084fc" # for secondary highlights, stat cards, etc.
+TEXT       = "#000000" # main text
+TEXT2      = "#646970" # secondary text
+TEXT3      = "#b83764" # third text
+MUTED_PINK = "#ebbbd6" # for subtle accents, icons, etc.
+WHITE      = "#ffffff" # for cards, backgrounds, etc.
+BORDER     = "#f3e8ff" # for borders, dividers, etc.
+DANGER     = "#f43f5e" # for delete buttons, warnings, etc.
+SUCCESS    = "#34d399" # for success status, confirmations, etc.
+CARD       = "#ffffff" # for cards, forms, tables, etc. (white for clean look, with BORDER for definition)  
+NAV_FONT   = ("Montserrat SemiBold", 11)
