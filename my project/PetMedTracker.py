@@ -24,7 +24,7 @@ DATA_FILE = "pets_data.json"
 FREQUENCIES  = ["Once a day", "Twice a day", "Every other day"]
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
-# ── Data helpers ──────────────────────────────────────────────────────────────
+# DATA HELPER
 
 def load_data():
     try:
@@ -33,7 +33,7 @@ def load_data():
     except (FileNotFoundError, json.JSONDecodeError):
         return {"pets": [], "schedules": [], "intakes": []}
 
-def save_data(d):
+def save_data(d): # used to save the data back to the json file after any changes are made to it in the app
     with open(DATA_FILE, "w") as f:
         json.dump(d, f, indent=4)
 
@@ -199,7 +199,7 @@ class PetMedApp:
             vars_[day] = var
         return vars_
 
-    # ── DASHBOARD ─────────────────────────────────────────────────────────────
+# DASHBOARD 
 
     def show_dashboard(self):
         self._clear()
@@ -218,28 +218,27 @@ class PetMedApp:
         text_frame = tk.Frame(inner, bg="#fce7f3")
         text_frame.pack(side="left")
         tk.Label(text_frame, text="H e l l o ! \n Welcome to Paws & Pills",
-                 font=("Rubik Spray Paint Regular", 15),
-                 bg="#fce7f3", fg=TEXT3).pack(anchor="center", pady=0)
+                 font=("Rubik Spray Paint Regular", 15), bg="#fce7f3", fg=TEXT3).pack(anchor="center", pady=0)
         tk.Label(text_frame, text="Here's a quick overview of your pets' medication schedules and status.",
                  font=("Montserrat Regular", 10), bg="#fce7f3", fg=TEXT2).pack(anchor="center", pady=(4, 0))
 
-        # Stat cards
+        # Stat cards for pets, schedules, and today's intakes (overview sha)
         row = tk.Frame(cont, bg=BG, padx=10, pady=0)
         row.pack(fill="x", padx=10, pady=(0, 20))
-        for icon, label, val, clr in [
+        for kyotie, label, val, clr in [
             ("૮꒰ ˶• ༝ •˶꒱ა", "Pets",       f"{len(data['pets'])}",      COLOR1),
-            ("────୨ৎ────",             "Schedules",  f"{len(data['schedules'])}", COLOR2),
-            ("𓇼 𓆉 𓆝 ⋆.˚ 𓇼", "Total Logs", f"{len(data['intakes'])}",   "#f59e0b"),
-        ]:
+            ("────୨ৎ────", "Schedules",  f"{len(data['schedules'])}", COLOR2),
+            (" 𓆉 𓆝 ⋆.˚ ", "Total Logs", f"{len(data['intakes'])}",   "#f59e0b"),]:
+            # Create a stat card for each overview
             card = self._card(row, padx=18, pady=16)
             card.pack(side="left", fill="both", expand=True, padx=(0, 12))
             top = tk.Frame(card, bg=CARD)
             top.pack(fill="both", expand=True)
-            tk.Label(top, text=icon,  font=("Montserrat Bold", 15), bg=CARD, fg=MUTED_PINK).pack(side="top")
+            tk.Label(top, text=kyotie,  font=("Montserrat Bold", 15), bg=CARD, fg=MUTED_PINK).pack(side="top")
             tk.Label(top, text=label, font=("Montserrat Bold", 20), bg=CARD).pack(side="left")
             tk.Label(top, text=val,   font=("Montserrat Bold", 22), bg=CARD, fg=clr).pack(side="right")
 
-        # Today's medication status
+        # Medication status
         self._section(cont, "Medication Status")
         sched_card = self._card(cont, padx=16, pady=16)
         sched_card.pack(fill="x", pady=(0, 12))

@@ -9,6 +9,11 @@
             "name": "Bella",
             "species": "Dog",
             "age": "3 years old"
+        },
+        {
+            "name": "Gian",
+            "species": "Spider",
+            "age": "18 months"
         }
     ],
     "schedules": [],
