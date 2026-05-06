@@ -1,5 +1,5 @@
-import datetime
-from color_palette import TEXT2, SUCCESS
+from datetime import datetime
+from .color_palette import TEXT2, SUCCESS
 
 # TIME FUNCTIONS
 def today_str():
