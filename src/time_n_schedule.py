@@ -21,12 +21,9 @@ def doses_given_today(pet: str, med: str, intakes: list) -> int:
     )
 
 def is_due_today(schedule: dict) -> bool: # used to determine if a medication is due today based on its schedule and the current date
-    freq = schedule.get("frequency", "Once a day")
     days = schedule.get("days", [])
-    # If days are specified, always check against them regardless of frequency
     if days:
         return today_weekday() in days
-    # No days specified = every day
     return True
 
 def schedule_status(schedule: dict, intakes: list) -> tuple:

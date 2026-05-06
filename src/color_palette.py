@@ -1,3 +1,4 @@
+# COLORS 
 BG         = "#fdf2f8"
 NAVIGATION_COLOR = "#ffffff"
 COLOR1     = "#e879a0" # for highlights, buttons, active states
@@ -11,4 +12,6 @@ BORDER     = "#f3e8ff" # for borders, dividers, etc.
 DANGER     = "#f43f5e" # for delete buttons, warnings, etc.
 SUCCESS    = "#34d399" # for success status, confirmations, etc.
 CARD       = "#ffffff" # for cards, forms, tables, etc. (white for clean look, with BORDER for definition)  
+
+# FONT
 NAV_FONT   = ("Montserrat SemiBold", 11)
