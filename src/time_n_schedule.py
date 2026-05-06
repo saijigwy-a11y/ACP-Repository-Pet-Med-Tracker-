@@ -1,7 +1,7 @@
-# FOR THE TIME AND SCHEDULE
 import datetime
 from color_palette import TEXT2, SUCCESS
 
+# TIME FUNCTIONS
 def today_str():
     return datetime.now().strftime("%Y-%m-%d") 
 

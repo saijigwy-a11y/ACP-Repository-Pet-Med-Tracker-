@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from datetime import datetime
 from .color_palette import BG, NAVIGATION_COLOR, COLOR1, COLOR2, TEXT, TEXT2, TEXT3, MUTED_PINK, WHITE, BORDER, DANGER, SUCCESS, CARD, NAV_FONT
-from .util import today_str, today_weekday, doses_required_today, doses_given_today, is_due_today, schedule_status
+from .time_n_schedule import schedule_status
 
 FREQUENCIES  = ["Once a day", "Twice a day", "Every other day"]
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
