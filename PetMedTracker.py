@@ -6,17 +6,17 @@ import json
 # ===== COLOR PALETTE =====
 BG         = "#fdf2f8"
 NAVIGATION_COLOR = "#ffffff"
-COLOR1     = "#e879a0"
-COLOR2     = "#c084fc"
-TEXT       = "#000000"
-TEXT2      = "#646970"
-TEXT3      = "#b83764"
-MUTED_PINK = "#ebbbd6"
-WHITE      = "#ffffff"
-BORDER     = "#f3e8ff"
-DANGER     = "#f43f5e"
-SUCCESS    = "#34d399"
-CARD       = "#ffffff"
+COLOR1     = "#e879a0" # for highlights, buttons, active states
+COLOR2     = "#c084fc" # for secondary highlights, stat cards, etc.
+TEXT       = "#000000" # main text
+TEXT2      = "#646970" # secondary text
+TEXT3      = "#b83764" # third text
+MUTED_PINK = "#ebbbd6" # for subtle accents, icons, etc.
+WHITE      = "#ffffff" # for cards, backgrounds, etc.
+BORDER     = "#f3e8ff" # for borders, dividers, etc.
+DANGER     = "#f43f5e" # for delete buttons, warnings, etc.
+SUCCESS    = "#34d399" # for success status, confirmations, etc.
+CARD       = "#ffffff" # for cards, forms, tables, etc. (white for clean look, with BORDER for definition)  
 NAV_FONT   = ("Montserrat SemiBold", 11)
 
 DATA_FILE = "pets_data.json"
@@ -24,8 +24,7 @@ DATA_FILE = "pets_data.json"
 FREQUENCIES  = ["Once a day", "Twice a day", "Every other day"]
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
-# DATA HELPER
-
+# DATA HELPER 
 def load_data():
     try:
         with open(DATA_FILE, "r") as f:
@@ -55,11 +54,7 @@ def doses_given_today(pet: str, med: str, intakes: list) -> int:
         and i.get("date", "").startswith(datetime.now().strftime("%B %#d, %Y %I:%M %p"))
     )
 
-def is_due_today(schedule: dict) -> bool:
-    """
-    For Once/Twice a day: check if today is in saved days (if days list is present).
-    For Every other day: check if today is in the saved days list.
-    """
+def is_due_today(schedule: dict) -> bool: # used to determine if a medication is due today based on its schedule and the current date
     freq = schedule.get("frequency", "Once a day")
     days = schedule.get("days", [])
     # If days are specified, always check against them regardless of frequency
@@ -91,8 +86,7 @@ class PetMedApp:
         self._build_layout()
         self.show_dashboard()
 
-    # ── Styles ────────────────────────────────────────────────────────────────
-
+    #STYLES────────────────────────────────────────────────────────────────
     def _setup_styles(self):
         s = ttk.Style()
         s.theme_use("clam")
@@ -320,7 +314,7 @@ class PetMedApp:
         pet_names = [p["name"] for p in data["pets"]] or ["No pets added"]
         pet_cb = ttk.Combobox(form_card, values=pet_names, state="readonly",
                               font=("Montserrat Regular", 11))
-        pet_cb.pack(fill="x", ipady=6)
+        pet_cb.pack(fill="x", ipady=6) 
         if pet_names:
             pet_cb.current(0)
 

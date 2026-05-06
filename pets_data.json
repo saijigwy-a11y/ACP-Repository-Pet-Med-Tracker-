@@ -14,8 +14,41 @@
             "name": "Gian",
             "species": "Spider",
             "age": "18 months"
+        },
+        {
+            "name": "Xy",
+            "species": "Dragon",
+            "age": "100 years old"
+        },
+        {
+            "name": "Andres",
+            "species": "Alien",
+            "age": "1000"
         }
     ],
-    "schedules": [],
-    "intakes": []
+    "schedules": [
+        {
+            "pet": "Andres",
+            "med": "Rugby",
+            "frequency": "Once a day",
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        }
+    ],
+    "intakes": [
+        {
+            "date": "2026-05-06 12:41 PM",
+            "pet": "Andres",
+            "med": "Rugby",
+            "given_by": "Aifa",
+            "status": "Given \u2705"
+        }
+    ]
 }
