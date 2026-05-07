@@ -319,11 +319,13 @@ class PetMedApp:
         self._field_label(form_card, "Medication Name")
         med_ent = self._entry(form_card)
 
+
         self._field_label(form_card, "Frequency")
         freq_cb = ttk.Combobox(form_card, values=FREQUENCIES, state="readonly",
                                font=("Montserrat Regular", 11))
         freq_cb.pack(fill="x", ipady=6)
         freq_cb.current(0)
+        
 
 # TIME PICKER
         self._field_label(form_card, "Time to Give Medication")
