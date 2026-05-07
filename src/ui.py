@@ -319,6 +319,8 @@ class PetMedApp:
         self._field_label(form_card, "Medication Name")
         med_ent = self._entry(form_card)
 
+        self._field_label(form_card, "Medicine Dosage")
+        dosage_ent = self._entry(form_card)
 
         self._field_label(form_card, "Frequency")
         freq_cb = ttk.Combobox(form_card, values=FREQUENCIES, state="readonly",
@@ -373,6 +375,7 @@ class PetMedApp:
         def add_schedule():
             pet  = pet_cb.get()
             med  = med_ent.get().strip()
+            dosage = dosage_ent.get()
             freq = freq_cb.get()
             if pet == "No pets added" or not med:
                 messagebox.showwarning("Missing Fields", "Select a pet and enter a medication name.")
@@ -390,6 +393,7 @@ class PetMedApp:
             data["schedules"].append({ # for saving to database
                 "pet":       pet,
                 "med":       med,
+                "dosage":    dosage,
                 "frequency": freq,
                 "time":      get_time(),   
                 "days":      selected_days   
@@ -424,6 +428,10 @@ class PetMedApp:
         self._field_label(card, "Medication")
         med_cb = ttk.Combobox(card, state="readonly", font=("Montserrat Regular", 11))
         med_cb.pack(fill="x", ipady=6)
+        
+        self._field_label(card, "Medication Dosage")
+        med_dosage = ttk.Combobox(card, state="readonly", font=("Montserrat Regular", 11))
+        med_dosage.pack(fill="x", ipady=6)
 
         # Label to show the scheduled time for the selected med
         sched_time_label = tk.Label(card, text="", bg=CARD, fg=COLOR1,
@@ -433,19 +441,28 @@ class PetMedApp:
         def refresh_meds(event=None):
             pet  = pet_cb.get()
             meds = [s["med"] for s in data["schedules"] if s["pet"] == pet]
+            dosages = [s["dosage"] for s in data["schedules"] if s["pet"] == pet]
+            
             if meds:
                 med_cb["values"] = meds
                 med_cb.current(0)
+                
+                med_dosage["values"] = dosages
+                med_dosage.current(0)
             else:
                 med_cb["values"] = ["No medicine for this pet."]
                 med_cb.set("No medicine for this pet.")
+                
+                med_dosage["values"] = ["No dosage for this pet."]
+                med_dosage.set("No dosage for this pet.")
             refresh_sched_time()
 
         def refresh_sched_time(event=None):
             pet = pet_cb.get()
             med = med_cb.get()
+            dosage = med_dosage.get()
             sched = next((s for s in data["schedules"]
-                          if s["pet"] == pet and s["med"] == med), None)
+                          if s["pet"] == pet and s["med"] == med and s["dosage"] == dosage), None)
             if sched and sched.get("time"):
                 sched_time_label.configure(
                     text=f"⏰ Scheduled time: {sched['time']}", font=("Montserrat Regular", 12)
@@ -455,6 +472,7 @@ class PetMedApp:
 
         pet_cb.bind("<<ComboboxSelected>>", refresh_meds)
         med_cb.bind("<<ComboboxSelected>>", refresh_sched_time)
+        med_dosage.bind("<<ComboboxSelected>>", refresh_sched_time)
         refresh_meds()
 
         self._field_label(card, "Given By")
@@ -463,6 +481,7 @@ class PetMedApp:
         def save_intake():
             pet  = pet_cb.get()
             med  = med_cb.get()
+            dosage = med_dosage.get()
             user = user_ent.get().strip()
             if pet == "No pets added" or not med or med == "No medicine for this pet.":
                 messagebox.showwarning("Missing Fields", "Select a valid pet and medication.")
@@ -471,6 +490,7 @@ class PetMedApp:
                 "date":     datetime.now().strftime("%Y-%m-%d %I:%M %p"),
                 "pet":      pet,
                 "med":      med,
+                "dosage":   dosage,
                 "given_by": user,
                 "status":   "Given ✅"
             })
@@ -539,8 +559,8 @@ class PetMedApp:
                           "status": schedule_status(s, data["intakes"])[0]}
                          for s in data["schedules"]]
             else:  # intakes
-                cols  = ("date", "pet", "med", "given_by", "status")
-                heads = ("Date", "Pet", "Medication", "Given By", "Status")
+                cols  = ("date", "pet", "med", "given_by", "status", "dosage")
+                heads = ("Date", "Pet", "Medication", "Given By", "Status", "Dosage")
                 rows  = [i for i in data["intakes"]
                          if pet_filter == "All" or i.get("pet") == pet_filter]
 

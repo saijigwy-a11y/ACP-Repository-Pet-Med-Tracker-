@@ -33,66 +33,29 @@
     ],
     "schedules": [
         {
-            "pet": "Pengui",
+            "pet": "Bella",
             "med": "Antibiotics",
+            "dosage": "1 pill",
             "frequency": "Once a day",
             "time": "08:00 AM",
             "days": [
                 "Monday",
-                "Wednesday"
-            ]
-        },
-        {
-            "pet": "Renzo",
-            "med": "Antiparasitics",
-            "frequency": "Every other day",
-            "time": "06:07 PM",
-            "days": [
-                "Monday",
+                "Tuesday",
                 "Wednesday",
+                "Thursday",
                 "Friday",
+                "Saturday",
                 "Sunday"
-            ]
-        },
-        {
-            "pet": "Xy",
-            "med": "Fenbendazole",
-            "frequency": "Once a day",
-            "time": "11:00 AM",
-            "days": [
-                "Wednesday",
-                "Thursday"
-            ]
-        },
-        {
-            "pet": "Gian",
-            "med": "Anytibiotics",
-            "frequency": "Every other day",
-            "time": "08:00 PM",
-            "days": [
-                "Monday",
-                "Wednesday",
-                "Friday"
-            ]
-        },
-        {
-            "pet": "Aifs",
-            "med": "Yakapsule",
-            "frequency": "Every other day",
-            "time": "10:00 PM",
-            "days": [
-                "Monday",
-                "Wednesday",
-                "Friday"
             ]
         }
     ],
     "intakes": [
         {
-            "date": "2026-05-07 03:23 AM",
-            "pet": "Pengui",
+            "date": "2026-05-07 01:01 PM",
+            "pet": "Bella",
             "med": "Antibiotics",
-            "given_by": "gwy",
+            "dosage": "1 pill",
+            "given_by": "Gwy",
             "status": "Given \u2705"
         }
     ]
