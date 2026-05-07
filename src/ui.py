@@ -4,7 +4,7 @@ from datetime import datetime
 from .color_palette import BG, NAVIGATION_COLOR, COLOR1, COLOR2, TEXT, TEXT2, TEXT3, MUTED_PINK, WHITE, BORDER, DANGER, SUCCESS, CARD, NAV_FONT
 from .time_n_schedule import schedule_status
 
-FREQUENCIES  = ["Once a day", "Twice a day", "Every other day"]
+FREQUENCIES  = ["Once a day", "Every other day"]
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 class PetMedApp:
@@ -23,10 +23,10 @@ class PetMedApp:
         self.show_dashboard()
 
     # style ng table yees >_<
-    def _setup_styles(self):
+    def _setup_styles(self): 
         s = ttk.Style()
         s.theme_use("clam")
-        s.configure("Pink.Treeview",
+        s.configure("Pink.Treeview", # default style of all the tables
                     background=WHITE, foreground=TEXT, fieldbackground=WHITE, rowheight=38,
                     font=("Montserrat Regular", 10), borderwidth=0)
         s.configure("Pink.Treeview.Heading", 
@@ -45,19 +45,20 @@ class PetMedApp:
         nav_items = [ 
             ("Dashboard",     self.show_dashboard),
             ("Add Pet",       self.show_add_pet),
-            ("Medication Schedules",     self.show_schedules),
+            ("Add Medication & Schedules",     self.show_schedules),
             ("Record Intake", self.show_record_intake),
             ("View Records",  self.show_view_records),
         ]
         links = tk.Frame(navbar, bg=NAVIGATION_COLOR)
         links.pack(side="left", padx=16)
         for text, cmd in nav_items:
-            btn = tk.Button(links, text=text, font=NAV_FONT, bg=NAVIGATION_COLOR, fg=TEXT2, bd=0, padx=14, pady=8, cursor="heart", activebackground="#fff0f7",
-                            activeforeground=COLOR1, relief="flat", command=lambda c=cmd, t=text: self._nav(c, t))
+            btn = tk.Button(links, text=text, font=NAV_FONT, bg=NAVIGATION_COLOR, fg=TEXT2, bd=0, padx=14, pady=8, 
+                            cursor="heart", activebackground="#fff0f7", activeforeground=COLOR1,
+                            relief="flat", command=lambda c=cmd, t=text: self._nav(c, t))
             btn.pack(side="left", padx=2)
             self._nav_btns.append((btn, text))
 
-        tk.Frame(self.root, bg=BORDER, height=2).pack(fill="x")
+        tk.Frame(self.root, bg=BORDER, height=2).pack(fill="x") 
         self.main = tk.Frame(self.root, bg=BG)
         self.main.pack(fill="both", expand=True)
 
@@ -73,7 +74,7 @@ class PetMedApp:
         for w in self.main.winfo_children():
             w.destroy()
 
-    # WIDGETS/STYLES ──────────────────────────────────────────────────────
+    # WIDGETS/STYLES 
 
     def _card(self, parent, padx=20, pady=20): # card like frame for forms and tables
         return tk.Frame(parent, bg=CARD, highlightthickness=1,
@@ -85,7 +86,7 @@ class PetMedApp:
 
     def _field_label(self, parent, text): # for labels above form fields like "Pet Name", "Medication"
         tk.Label(parent, text=text, bg=CARD, fg=TEXT2,
-                 font=("Montserrat Bold", 9)).pack(anchor="w", pady=(10, 2))
+                 font=("Montserrat Bold", 10)).pack(anchor="w", pady=(10, 2))
 
     def _entry(self, parent): # pag nag eentry so consistent yung style
         e = tk.Entry(parent, font=("Montserrat Regular", 11), bd=0,
@@ -128,15 +129,76 @@ class PetMedApp:
             vars_[day] = var
         return vars_
 
+    def _time_picker(self, parent):
+        frame = tk.Frame(parent, bg=CARD)
+        frame.pack(fill="x", pady=(4, 2))
+
+        # HR SPINBOX
+        hour_var = tk.StringVar(value="08")
+        hour_sb = tk.Spinbox(
+            frame, from_=1, to=12, textvariable=hour_var,
+            width=3, font=("Montserrat Regular", 11), bd=0,
+            highlightthickness=1, highlightbackground="#f3e8ff",
+            bg="#fdf4ff", fg=TEXT, justify="center",
+            format="%02.0f", wrap=True
+        )
+        hour_sb.pack(side="left")
+
+        tk.Label(frame, text=":", bg=CARD, fg=TEXT,
+                 font=("Montserrat Bold", 13)).pack(side="left", padx=2)
+
+        # MIN SPINBOX
+        minute_var = tk.StringVar(value="00")
+        minute_sb = tk.Spinbox(
+            frame, values=[f"{m:02d}" for m in range(0, 60, 5)],
+            textvariable=minute_var,
+            width=3, font=("Montserrat Regular", 11), bd=0,
+            highlightthickness=1, highlightbackground="#f3e8ff",
+            bg="#fdf4ff", fg=TEXT, justify="center", wrap=True
+        )
+        minute_sb.pack(side="left")
+
+        # AM/PM
+        ampm_var = tk.StringVar(value="AM")
+
+        def toggle_ampm():
+            ampm_var.set("PM" if ampm_var.get() == "AM" else "AM")
+            ampm_btn.configure(
+                bg=COLOR1 if ampm_var.get() == "PM" else "#fce7f3",
+                fg=WHITE   if ampm_var.get() == "PM" else COLOR1
+            )
+
+        ampm_btn = tk.Button(
+            frame, textvariable=ampm_var, command=toggle_ampm,
+            bg="#fce7f3", fg=COLOR1, font=("Montserrat Bold", 10),
+            bd=0, padx=10, pady=4, cursor="hand2",
+            activebackground="#f9a8d4", relief="flat"
+        )
+        ampm_btn.pack(side="left", padx=(6, 0))
+
+        def get_time():
+            h = hour_var.get().strip()
+            m = minute_var.get().strip()
+            try:
+                h = f"{int(h):02d}"
+            except ValueError:
+                h = "08"
+            try:
+                m = f"{int(m):02d}"
+            except ValueError:
+                m = "00"
+            return f"{h}:{m} {ampm_var.get()}"
+
+        return get_time
+
 # DASHBOARD 
 
     def show_dashboard(self):
         self._clear()
         data = self.load_data()
-        cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
-        cont.pack(fill="both", expand=True)
+        _, cont = self._scrollable()
 
-        # Greeting
+        # Greeting (ello, welcome to p&p)
         greeting = tk.Frame(cont, bg="#fce7f3", padx=15, pady=5,
                             highlightthickness=0.5, highlightbackground="#f9a8d4")
         greeting.pack(fill="x", pady=(0, 10))
@@ -147,9 +209,9 @@ class PetMedApp:
         text_frame = tk.Frame(inner, bg="#fce7f3")
         text_frame.pack(side="left")
         tk.Label(text_frame, text="H e l l o ! \n Welcome to Paws & Pills",
-                 font=("Rubik Spray Paint Regular", 15), bg="#fce7f3", fg=TEXT3).pack(anchor="center", pady=0)
-        tk.Label(text_frame, text="Here's a quick overview of your pets' medication schedules and status.",
-                 font=("Montserrat Regular", 10), bg="#fce7f3", fg=TEXT2).pack(anchor="center", pady=(4, 0))
+                 font=("Rubik Spray Paint Regular", 22), bg="#fce7f3", fg=TEXT3).pack(anchor="center", pady=0)
+        tk.Label(text_frame, text="Here's the quick overview of your pets' medication schedules and status.",
+                 font=("Montserrat Regular", 10), bg="#fce7f3", fg="#2E2E2E").pack(anchor="center", pady=(4, 0))
 
         # Stat cards for pets, schedules, and today's intakes (overview sha)
         row = tk.Frame(cont, bg=BG, padx=10, pady=0)
@@ -167,7 +229,7 @@ class PetMedApp:
             tk.Label(top, text=label, font=("Montserrat Bold", 20), bg=CARD).pack(side="left")
             tk.Label(top, text=val,   font=("Montserrat Bold", 22), bg=CARD, fg=clr).pack(side="right")
 
-        # Medication status
+# MEDICATION STATUS
         self._section(cont, "Medication Status")
         sched_card = self._card(cont, padx=16, pady=16)
         sched_card.pack(fill="x", pady=(0, 12))
@@ -176,22 +238,24 @@ class PetMedApp:
             tk.Label(sched_card, text="No schedules yet.",
                      font=("Montserrat Regular", 10), bg=CARD, fg=TEXT2).pack(anchor="w")
         else:
-            cols = ("pet", "med", "frequency", "days", "today", "datetime")
+            cols = ("pet", "med", "frequency", "days", "time", "today")
             tree = ttk.Treeview(sched_card, columns=cols, show="headings",
                                 style="Pink.Treeview", height=min(len(data["schedules"]), 6))
             for col, head, w in zip(cols,
-                                    ("Pet", "Medication", "Frequency", "Days", "Status", "Date & Time"),
-                                    [110, 130, 110, 180, 160, 160]):
+                                    ("Pet", "Medication", "Frequency", "Days", "Time", "Status"),
+                                    [110, 130, 110, 160, 80, 140]):
                 tree.heading(col, text=head)
                 tree.column(col, width=w, anchor="center")
             tree.pack(fill="x")
             for sc in data["schedules"]:
                 lbl, _ = schedule_status(sc, data["intakes"])
                 days_val = ", ".join(sc["days"]) if sc.get("days") else "Every day"
-                tree.insert("", "end", values=(sc["pet"], sc["med"], sc["frequency"], days_val, lbl, datetime.now().strftime("%B %#d, %Y %I:%M %p")
+                time_val = sc.get("time", "—")
+                tree.insert("", "end", values=(
+                    sc["pet"], sc["med"], sc["frequency"], days_val, time_val, lbl
                 ))
 
-    # ── ADD PET ───────────────────────────────────────────────────────────────
+# ADD PET 
 
     def show_add_pet(self):
         self._clear()
@@ -199,8 +263,10 @@ class PetMedApp:
         cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
         cont.pack(fill="both", expand=True)
 
-        tk.Label(cont, text="Add New Pet", font=("Montserrat Bold", 20),
-                 bg=BG, fg=TEXT).pack(anchor="w", pady=(0, 16))
+        tk.Label(cont, text=" -`♡´-૮₍  ˶•⤙•˶ ₎ა\n|A d d  N e w  P e t|", font=("Rubik Spray Paint Regular", 20),
+                 bg=BG, fg=TEXT3).pack(anchor="center")
+        tk.Label(cont, text="Let's start by adding your pet's profile. You can add their medication schedules after this.",
+                 font=("Montserrat Regular", 11), bg=BG, fg="#2E2E2E").pack(anchor="center")
 
         card = self._card(cont, padx=28, pady=28)
         card.pack(fill="x")
@@ -212,7 +278,7 @@ class PetMedApp:
         self._field_label(card, "Age (years/months)")
         age_ent = self._entry(card)
 
-        def save():
+        def save(): 
             name    = name_ent.get().strip()
             species = species_ent.get().strip()
             age     = age_ent.get().strip()
@@ -226,21 +292,21 @@ class PetMedApp:
 
         self._primary_btn(card, "Save Pet Profile", save)
 
-    # ── SCHEDULES ─────────────────────────────────────────────────────────────
+# SCHEDULES
 
     def show_schedules(self):
         self._clear()
         data = self.load_data()
         _, cont = self._scrollable()
 
-        tk.Label(cont, text="Medication Schedules", font=("Montserrat Bold", 20),
-                 bg=BG, fg=TEXT).pack(anchor="w", pady=(0, 4))
+        tk.Label(cont, text="𐔌՞ ܸ.ˬ.ܸ՞𐦯\n|M e d i c a t i o n  S c h e d u l e s|", font=("Rubik Spray Paint Regular", 20),
+                 bg=BG, fg=TEXT3).pack(anchor="center")
 
-        # SCHEDULE FORM
+        # ADD NEW SCHEDULE FORM
         form_card = self._card(cont, padx=28, pady=24)
         form_card.pack(fill="x", pady=(0, 20))
-        tk.Label(form_card, text="Add New Schedule", font=("Montserrat Bold", 12),
-                 bg=CARD, fg=TEXT).pack(anchor="w", pady=(0, 8))
+        tk.Label(form_card, text="ADD NEW SCHEDULE", font=("Montserrat Bold", 12),
+                 bg=CARD, fg=TEXT).pack(anchor="w")
 
         self._field_label(form_card, "Pet")
         pet_names = [p["name"] for p in data["pets"]] or ["No pets added"]
@@ -259,11 +325,17 @@ class PetMedApp:
         freq_cb.pack(fill="x", ipady=6)
         freq_cb.current(0)
 
-        # ── Day picker (shown for ALL frequencies) ──
+# TIME PICKER
+        self._field_label(form_card, "Time to Give Medication")
+        tk.Label(form_card, text="For 'Twice a day', you can add two schedules with different times using once a day frequency.",
+                 bg=CARD, fg="#9D5191", font=("Montserrat Regular", 10)).pack(anchor="w", pady=(0, 2))
+        get_time = self._time_picker(form_card)
+
+# DAY PICKER
         day_picker_label = tk.Label(form_card, text="Days to give medication",
-                                    bg=CARD, fg=TEXT2, font=("Montserrat Bold", 9))
-        day_picker_hint  = tk.Label(form_card, bg=CARD, fg=TEXT2,
-                                    font=("Montserrat Regular", 8),
+                                    bg=CARD, fg=TEXT2, font=("Montserrat Bold", 10))
+        day_picker_hint  = tk.Label(form_card, bg=CARD, fg="#9D5191",
+                                    font=("Montserrat Regular", 10),
                                     text="Leave all unchecked to give every day.")
         day_picker_frame = tk.Frame(form_card, bg=CARD)
         day_vars = {}
@@ -272,35 +344,29 @@ class PetMedApp:
             freq = freq_cb.get()
             nonlocal day_vars
 
-            # Clear old checkboxes
-            for w in day_picker_frame.winfo_children():
+            for w in day_picker_frame.winfo_children(): # clear old checks
                 w.destroy()
-
-            # Always show the day picker
-            day_picker_label.pack(anchor="w", pady=(10, 2))
+            
+            day_picker_label.pack(anchor="w", pady=(10, 2)) # shows the day picker
             day_picker_hint.pack(anchor="w", pady=(0, 2))
             day_picker_frame.pack(fill="x", pady=(0, 4))
 
-            # Default selections per frequency
-            if freq == "Every other day":
+            if freq == "Every other day": # default selection of the days
                 defaults = ["Monday", "Wednesday", "Friday"]
             else:
-                # Once a day / Twice a day: all days checked by default
                 defaults = DAYS_OF_WEEK[:]
 
             day_vars = {}
             for day in DAYS_OF_WEEK:
                 var = tk.BooleanVar(value=(day in defaults))
-                cb = tk.Checkbutton(day_picker_frame, text=day[:3], variable=var,
-                                    bg=CARD, fg=TEXT, selectcolor="#fce7f3",
-                                    activebackground=CARD,
-                                    font=("Montserrat Regular", 9),
-                                    cursor="hand2")
+                cb = tk.Checkbutton(day_picker_frame, text=day[:3], variable=var, bg=CARD, fg=TEXT, 
+                                    selectcolor="#fce7f3", activebackground=CARD,
+                                    font=("Montserrat Regular", 9), cursor="hand2")
                 cb.pack(side="left", padx=4)
                 day_vars[day] = var
 
         freq_cb.bind("<<ComboboxSelected>>", refresh_day_picker)
-        refresh_day_picker()  # init state
+        refresh_day_picker()
 
         def add_schedule():
             pet  = pet_cb.get()
@@ -312,68 +378,26 @@ class PetMedApp:
             if any(s["pet"] == pet and s["med"] == med for s in data["schedules"]):
                 messagebox.showwarning("Duplicate", f"A schedule for {pet} / {med} already exists.")
                 return
-
-            # Collect selected days for all frequencies
+            
             selected_days = [d for d, v in day_vars.items() if v.get()]
-            # If user unchecked everything, treat as "every day" (empty list)
-            # If "Every other day" and nothing selected, warn
             if freq == "Every other day" and not selected_days:
                 messagebox.showwarning("No Days Selected",
                                        "Please select at least one day for this frequency.")
                 return
 
-            data["schedules"].append({
+            data["schedules"].append({ # for saving to database
                 "pet":       pet,
                 "med":       med,
                 "frequency": freq,
-                "days":      selected_days   # empty = every day for Once/Twice a day
+                "time":      get_time(),   
+                "days":      selected_days   
             })
             self.save_data(data)
             self.show_schedules()
 
         self._primary_btn(form_card, "Add Schedule", add_schedule)
-
-        # ── Current schedules table ──
-        self._section(cont, "Current Schedules")
-        table_card = self._card(cont, padx=16, pady=16)
-        table_card.pack(fill="both", expand=True)
-
-        cols = ("pet", "med", "frequency", "days", "today_status")
-        tree = ttk.Treeview(table_card, columns=cols, show="headings",
-                            style="Pink.Treeview", height=max(len(data["schedules"]), 1))
-        for col, head, w in zip(cols,
-                                ("Pet", "Medication", "Frequency", "Days", "Today's Status"),
-                                [120, 140, 110, 200, 160]):
-            tree.heading(col, text=head)
-            tree.column(col, width=w, anchor="center")
-        tree.pack(fill="both", expand=True)
-
-        for sc in data["schedules"]:
-            lbl, _ = schedule_status(sc, data["intakes"])
-            days_val = ", ".join(sc["days"]) if sc.get("days") else "Every day"
-            tree.insert("", "end", values=(sc["pet"], sc["med"], sc["frequency"], days_val, lbl))
-
-        btn_row = tk.Frame(table_card, bg=CARD)
-        btn_row.pack(anchor="e", pady=(10, 0))
-
-        def delete_schedule():
-            sel = tree.selection()
-            if not sel:
-                return
-            vals = tree.item(sel[0])["values"]
-            pet_v, med_v = vals[0], vals[1]
-            if messagebox.askyesno("Delete Schedule", f"Remove schedule for {pet_v} / {med_v}?"):
-                data["schedules"] = [s for s in data["schedules"]
-                                     if not (s["pet"] == pet_v and s["med"] == med_v)]
-                self.save_data(data)
-                self.show_schedules()
-
-        tk.Button(btn_row, text="🗑  Delete Selected",
-                  bg=DANGER, fg=WHITE, font=("Montserrat Bold", 9),
-                  bd=0, padx=12, pady=6, cursor="hand2",
-                  command=delete_schedule).pack()
-
-    # ── RECORD INTAKE ─────────────────────────────────────────────────────────
+        
+# RECORD INTAKE 
 
     def show_record_intake(self):
         self._clear()
@@ -381,8 +405,8 @@ class PetMedApp:
         cont = tk.Frame(self.main, bg=BG, padx=40, pady=28)
         cont.pack(fill="both", expand=True)
 
-        tk.Label(cont, text="Record Medication Intake", font=("Montserrat Bold", 20),
-                 bg=BG, fg=TEXT).pack(anchor="w", pady=(0, 16))
+        tk.Label(cont, text="ദ്ദി◝ ⩊ ◜.ᐟ\n|R e c o r d  M e d i c a t i o n  I n t a k e|", font=("Rubik Spray Paint Regular", 20),
+                 bg=BG, fg=TEXT3).pack(anchor="center")
 
         card = self._card(cont, padx=28, pady=28)
         card.pack(fill="x")
@@ -399,7 +423,12 @@ class PetMedApp:
         med_cb = ttk.Combobox(card, state="readonly", font=("Montserrat Regular", 11))
         med_cb.pack(fill="x", ipady=6)
 
-        def refresh_meds():
+        # Label to show the scheduled time for the selected med
+        sched_time_label = tk.Label(card, text="", bg=CARD, fg=COLOR1,
+                                    font=("Montserrat Regular", 9))
+        sched_time_label.pack(anchor="w", pady=(2, 0))
+
+        def refresh_meds(event=None):
             pet  = pet_cb.get()
             meds = [s["med"] for s in data["schedules"] if s["pet"] == pet]
             if meds:
@@ -408,8 +437,22 @@ class PetMedApp:
             else:
                 med_cb["values"] = ["No medicine for this pet."]
                 med_cb.set("No medicine for this pet.")
+            refresh_sched_time()
+
+        def refresh_sched_time(event=None):
+            pet = pet_cb.get()
+            med = med_cb.get()
+            sched = next((s for s in data["schedules"]
+                          if s["pet"] == pet and s["med"] == med), None)
+            if sched and sched.get("time"):
+                sched_time_label.configure(
+                    text=f"⏰ Scheduled time: {sched['time']}", font=("Montserrat Regular", 12)
+                )
+            else:
+                sched_time_label.configure(text="")
 
         pet_cb.bind("<<ComboboxSelected>>", refresh_meds)
+        med_cb.bind("<<ComboboxSelected>>", refresh_sched_time)
         refresh_meds()
 
         self._field_label(card, "Given By")
@@ -435,15 +478,15 @@ class PetMedApp:
 
         self._primary_btn(card, "Record Intake", save_intake)
 
-    # ── VIEW RECORDS ──────────────────────────────────────────────────────────
+# VIEW RECORDS
 
     def show_view_records(self):
         self._clear()
         data = self.load_data()
         _, cont = self._scrollable()
 
-        tk.Label(cont, text="View Records", font=("Montserrat Bold", 20),
-                 bg=BG, fg=TEXT).pack(anchor="w")
+        tk.Label(cont, text="◝(ᵔᗜᵔ)◜\n|V i e w  R e c o r d s|", font=("Rubik Spray Paint Regular", 20),
+                 bg=BG, fg=TEXT3).pack(anchor="center")
 
         tab_frame = tk.Frame(cont, bg=BG)
         tab_frame.pack(fill="x", pady=14)
@@ -456,8 +499,7 @@ class PetMedApp:
         def display_tab(cat, pet_filter="All"):
             for c, b in tab_btns.items():
                 b.configure(
-                    bg=COLOR1 if c == cat else WHITE,
-                    fg=WHITE   if c == cat else TEXT2,
+                    bg=COLOR1 if c == cat else WHITE, fg=WHITE   if c == cat else TEXT2,
                     font=("Montserrat Bold", 10) if c == cat else ("Montserrat Regular", 10))
 
             for w in table_cont.winfo_children():
@@ -486,10 +528,11 @@ class PetMedApp:
                 heads = ("Pet Name", "Species", "Age")
                 rows  = data["pets"]
             elif cat == "schedules":
-                cols  = ("pet", "med", "frequency", "days", "status")
-                heads = ("Pet", "Medication", "Frequency", "Days", "Today's Status")
+                cols  = ("pet", "med", "frequency", "time", "days", "status")
+                heads = ("Pet", "Medication", "Frequency", "Time", "Days", "Today's Status")
                 rows  = [{"pet": s["pet"], "med": s["med"],
                           "frequency": s["frequency"],
+                          "time": s.get("time", "—"),
                           "days": ", ".join(s["days"]) if s.get("days") else "Every day",
                           "status": schedule_status(s, data["intakes"])[0]}
                          for s in data["schedules"]]
@@ -509,7 +552,7 @@ class PetMedApp:
             for row in rows:
                 tree.insert("", "end", values=tuple(row.get(k, "") for k in cols))
 
-            # Delete button — all tabs
+            # Delete button
             btn_row = tk.Frame(card, bg=CARD)
             btn_row.pack(anchor="e", pady=(10, 0))
 
@@ -542,13 +585,13 @@ class PetMedApp:
                     self.save_data(data)
                     display_tab(c, pf)
 
-            tk.Button(btn_row, text="🗑  Delete Selected",
+            tk.Button(btn_row, text="Delete Selected",
                       bg=DANGER, fg=WHITE, font=("Montserrat Bold", 9),
                       bd=0, padx=12, pady=6, cursor="hand2",
                       command=delete_item).pack()
 
-        for label, key in [("Pets 🐾", "pets"), ("Schedules 📅", "schedules"), ("History 📋", "intakes")]:
-            b = tk.Button(tab_frame, text=label, font=("Montserrat Regular", 10),
+        for label, key in [("Pets", "pets"), ("Schedules", "schedules"), ("History", "intakes")]:
+            b = tk.Button(tab_frame, text=label, font=("Montserrat Bold", 10),
                           bg=WHITE, fg=TEXT2, bd=0, padx=16, pady=8,
                           cursor="hand2", highlightthickness=1, highlightbackground=BORDER,
                           command=lambda k=key: display_tab(k))

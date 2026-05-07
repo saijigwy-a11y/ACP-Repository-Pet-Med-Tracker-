@@ -5,8 +5,8 @@ from .color_palette import TEXT2, SUCCESS
 def today_str():
     return datetime.now().strftime("%Y-%m-%d") 
 
+# Return full weekday name for today, e.g. 'Monday'
 def today_weekday() -> str:
-    # Return full weekday name for today, e.g. 'Monday'
     return datetime.now().strftime("%A")
 
 def doses_required_today(frequency: str) -> int:

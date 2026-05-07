@@ -11,7 +11,7 @@ def load_data():
     except (FileNotFoundError, json.JSONDecodeError):
         return {"pets": [], "schedules": [], "intakes": []}
 
-def save_data(d): # used to save the data back to the json file after any changes are made to it in the app
+def save_data(d): # used to save the data back to the json after changing something 
     with open(DATA_FILE, "w") as f:
         json.dump(d, f, indent=4)
 

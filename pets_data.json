@@ -1,11 +1,6 @@
 {
     "pets": [
         {
-            "name": "Pengui",
-            "species": "Cat",
-            "age": "1 years old"
-        },
-        {
             "name": "Bella",
             "species": "Dog",
             "age": "3 years old"
@@ -16,66 +11,88 @@
             "age": "18 months"
         },
         {
-            "name": "Xy",
-            "species": "Dragon",
-            "age": "100 years old"
-        },
-        {
             "name": "Andres",
             "species": "Alien",
             "age": "1000"
         },
         {
-            "name": "Renzo",
-            "species": "Tuberkulosis Kwitis",
-            "age": "70 months"
+            "name": "Shally",
+            "species": "Cat",
+            "age": "19 months"
+        },
+        {
+            "name": "Aifs",
+            "species": "Cat",
+            "age": "19 months"
+        },
+        {
+            "name": "Pengui",
+            "species": "Dog",
+            "age": "1 year old"
         }
     ],
     "schedules": [
         {
-            "pet": "Andres",
-            "med": "Rugby",
-            "frequency": "Once a day",
-            "days": [
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
-                "Sunday"
-            ]
-        },
-        {
             "pet": "Pengui",
             "med": "Antibiotics",
             "frequency": "Once a day",
+            "time": "08:00 AM",
             "days": [
+                "Monday",
                 "Wednesday"
             ]
         },
         {
             "pet": "Renzo",
-            "med": "Medicol",
-            "frequency": "Once a day",
+            "med": "Antiparasitics",
+            "frequency": "Every other day",
+            "time": "06:07 PM",
             "days": [
+                "Monday",
+                "Wednesday",
+                "Friday",
+                "Sunday"
+            ]
+        },
+        {
+            "pet": "Xy",
+            "med": "Fenbendazole",
+            "frequency": "Once a day",
+            "time": "11:00 AM",
+            "days": [
+                "Wednesday",
                 "Thursday"
+            ]
+        },
+        {
+            "pet": "Gian",
+            "med": "Anytibiotics",
+            "frequency": "Every other day",
+            "time": "08:00 PM",
+            "days": [
+                "Monday",
+                "Wednesday",
+                "Friday"
+            ]
+        },
+        {
+            "pet": "Aifs",
+            "med": "Yakapsule",
+            "frequency": "Every other day",
+            "time": "10:00 PM",
+            "days": [
+                "Monday",
+                "Wednesday",
+                "Friday"
             ]
         }
     ],
     "intakes": [
         {
-            "date": "2026-05-06 12:41 PM",
-            "pet": "Andres",
-            "med": "Rugby",
-            "given_by": "Aifa",
-            "status": "Given \u2705"
-        },
-        {
-            "date": "2026-05-06 01:05 PM",
+            "date": "2026-05-07 03:23 AM",
             "pet": "Pengui",
             "med": "Antibiotics",
-            "given_by": "Luan",
+            "given_by": "gwy",
             "status": "Given \u2705"
         }
     ]
